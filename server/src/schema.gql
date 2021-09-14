@@ -1,0 +1,61 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input CreateLobbyInput {
+  capacity: Float!
+  players: [String!]!
+}
+
+input CreateUserInput {
+  login: String!
+}
+
+input ListLobbyInput {
+  _id: String
+  capacity: Float
+  players: [String!]
+}
+
+input ListUserInput {
+  _id: String
+  login: String
+}
+
+type Lobby {
+  _id: String!
+  capacity: Float!
+  players: [User!]!
+}
+
+type Mutation {
+  createLobby(createLobbyInput: CreateLobbyInput!): Lobby!
+  createUser(createUserInput: CreateUserInput!): User!
+  removeLobby(id: String!): Lobby!
+  removeUser(id: String!): User!
+  updateLobby(updateLobbyInput: UpdateLobbyInput!): Lobby!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+}
+
+type Query {
+  lobbies(filters: ListLobbyInput): [Lobby!]!
+  lobby(id: String!): Lobby!
+  user(id: String!): User!
+  users(filters: ListUserInput): [User!]!
+}
+
+input UpdateLobbyInput {
+  _id: String
+  capacity: Float
+  players: [String!]
+}
+
+input UpdateUserInput {
+  _id: String
+  login: String
+}
+
+type User {
+  _id: String!
+  login: String!
+}
