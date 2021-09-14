@@ -1,22 +1,20 @@
 <template>
     <div>
         <h1>Vue project</h1>
-        <form @submit="click">
-            <input type="text" placeholder="Username" :value="username" />
+        <form @submit="submit">
+            <input type="text" placeholder="Username" v-model="username" />
+            {{ username }}
             <button>Play</button>
         </form>
     </div>
 </template>
 
-<script setup lang='ts'>
-import { ref } from 'vue'
+<script lang="ts" setup>
+import { ref } from 'vue';
+let username = ref('');
 
-const username = ref('');
-
-let click = (e: SubmitEvent) => {
+let submit = (e: SubmitEvent) => {
     e.preventDefault();
-
-    console.log(username);
+    console.log(username.value);
 }
-
 </script>
