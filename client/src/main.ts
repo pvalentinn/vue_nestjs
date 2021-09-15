@@ -4,13 +4,15 @@ import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client/core
 import { DefaultApolloClient } from '@vue/apollo-composable'
 
 import App from './App.vue';
-import HelloWorld from './components/HelloWorld.vue';
-import NotFound from './components/NotFound.vue';
-import HomePage from './components/HomePage.vue';
+import HelloWorld from './pages/HelloWorld.vue';
+import NotFound from './pages/NotFound.vue';
+import HomePage from './pages/HomePage.vue';
+import LobbyPage from './pages/LobbyPage.vue';
 
 const routes = [
     { path: '/', name:'Home', component: HomePage},
     { path: '/test', name: 'Test', component: HelloWorld, props: true },
+    { path: '/lobby/:id', name: 'Lobby', component: LobbyPage },
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
 ];
 
