@@ -2,6 +2,17 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input AddPlayerLobbyInput {
+  id: String!
+  player_id: String!
+}
+
+type AddPlayerReturn {
+  error: Boolean!
+  message: String
+  result: Lobby
+}
+
 input CreateLobbyInput {
   capacity: Float!
   players: [String!]!
@@ -29,6 +40,7 @@ type Lobby {
 }
 
 type Mutation {
+  addPlayer(addPlayerLobbyInput: AddPlayerLobbyInput!): AddPlayerReturn!
   createLobby(createLobbyInput: CreateLobbyInput!): Lobby!
   createUser(createUserInput: CreateUserInput!): User!
   removeLobby(id: String!): Lobby!

@@ -3,7 +3,7 @@ import { Schema as Ms } from 'mongoose';
 
 import { LobbyService } from './lobby.service';
 import { Lobby, LobbyDocument } from './lobby.model';
-import { CreateLobbyInput, ListLobbyInput, UpdateLobbyInput } from './lobby.inputs'
+import { AddPlayerLobbyInput, CreateLobbyInput, AddPlayerReturn, ListLobbyInput, UpdateLobbyInput } from './lobby.inputs'
 import { User } from 'src/user/user.model';
 
 @Resolver(() => Lobby)
@@ -13,6 +13,11 @@ export class LobbyResolver {
 	@Mutation(() => Lobby)
 	createLobby(@Args('createLobbyInput') createLobbyInput: CreateLobbyInput) {
 		return this.lobbyService.create(createLobbyInput);
+	}
+
+	@Mutation(() => AddPlayerReturn, { name: 'addPlayer' })
+	addPlayer(@Args('addPlayerLobbyInput') addPlayerLobbyInput: AddPlayerLobbyInput ) {
+		return this.lobbyService.addPlayer(addPlayerLobbyInput);
 	}
 
 	@Query(() => [Lobby], { name: 'lobbies' })

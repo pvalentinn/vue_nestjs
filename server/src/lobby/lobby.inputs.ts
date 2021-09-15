@@ -1,5 +1,6 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, InputType, ObjectType} from '@nestjs/graphql';
 import { Schema as Ms } from 'mongoose';
+import { Lobby } from './lobby.model';
 
 @InputType()
 export class CreateLobbyInput {
@@ -32,4 +33,25 @@ export class UpdateLobbyInput {
 
   @Field(() => [String], { nullable: true })
   players?: Ms.Types.ObjectId[];
+}
+
+@InputType()
+export class AddPlayerLobbyInput {
+  @Field(() => String)
+  id: Ms.Types.ObjectId;
+
+  @Field(() => String)
+  player_id: Ms.Types.ObjectId;
+}
+
+@ObjectType()
+export class AddPlayerReturn {
+  @Field(() => Boolean)
+  error: boolean
+
+  @Field(() => String, { nullable: true })
+  message?: string
+
+  @Field(() => Lobby, { nullable: true })
+  result?: Lobby
 }
