@@ -8,6 +8,7 @@ import { LobbyModule } from '../lobby/lobby.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { PubSubModule } from 'src/pubsub/pubsub/pubsub.module';
 
 @Module({
   imports: [
@@ -17,9 +18,11 @@ import { AppService } from './app.service';
       sortSchema: true,
       playground: true,
       debug: false,
+      installSubscriptionHandlers: true,
     }),
     UserModule,
-    LobbyModule
+    LobbyModule,
+    PubSubModule
   ],
   controllers: [AppController],
   providers: [AppService],

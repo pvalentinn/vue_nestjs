@@ -1,4 +1,6 @@
-import { Resolver, Query, Mutation, Args, ResolveField, Parent } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ResolveField, Parent, Subscription } from '@nestjs/graphql';
+import { PubSub } from 'graphql-subscriptions';
+import { Inject } from '@nestjs/common';
 import { Schema as Ms } from 'mongoose';
 
 import { LobbyService } from './lobby.service';
@@ -8,16 +10,14 @@ import { User } from 'src/user/user.model';
 
 @Resolver(() => Lobby)
 export class LobbyResolver {
-	constructor(private readonly lobbyService: LobbyService) {}
+	constructor(
+		@Inject('PUB_SUB') private pubSub: PubSub,
+		private readonly lobbyService: LobbyService,
+	) {}
 
 	@Mutation(() => Lobby)
 	createLobby(@Args('createLobbyInput') createLobbyInput: CreateLobbyInput) {
 		return this.lobbyService.create(createLobbyInput);
-	}
-
-	@Mutation(() => AddPlayerReturn, { name: 'addPlayer' })
-	addPlayer(@Args('addPlayerLobbyInput') addPlayerLobbyInput: AddPlayerLobbyInput ) {
-		return this.lobbyService.addPlayer(addPlayerLobbyInput);
 	}
 
 	@Query(() => [Lobby], { name: 'lobbies' })
@@ -38,6 +38,27 @@ export class LobbyResolver {
 	@Mutation(() => Lobby)
 	removeLobby(@Args('id', { type: () => String }) id: Ms.Types.ObjectId) {
 		return this.lobbyService.delete(id);
+	}
+
+	@Mutation(() => AddPlayerReturn, { name: 'addPlayer' })
+	async addPlayer(@Args('addPlayerLobbyInput') addPlayerLobbyInput: AddPlayerLobbyInput ) {
+		let res = await this.lobbyService.addPlayer(addPlayerLobbyInput);
+		if(!res.error) {
+			this.pubSub.publish('updatePlayers', await res.result);
+		}
+		return res;
+	}
+
+	@Subscription(() => Lobby,
+	{
+		filter: (payload, variables) => {
+			console.log(payload, variables);
+			return payload._id == variables.id
+		},
+		resolve: (payload) => payload
+	})
+	updatePlayers(@Args('id', { type: () => String }) id: Ms.Types.ObjectId) {
+		return this.pubSub.asyncIterator('updatePlayers');
 	}
 
 	@ResolveField()

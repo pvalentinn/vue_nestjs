@@ -56,6 +56,10 @@ type Query {
   users(filters: ListUserInput): [User!]!
 }
 
+type Subscription {
+  updatePlayers(id: String!): Lobby!
+}
+
 input UpdateLobbyInput {
   _id: String
   capacity: Float
