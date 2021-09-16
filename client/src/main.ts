@@ -1,7 +1,9 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
-import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client/core'
-import { DefaultApolloClient } from '@vue/apollo-composable'
+import { HttpLink, split, ApolloClient, InMemoryCache } from '@apollo/client/core';
+import { WebSocketLink } from "@apollo/client/link/ws";
+import { getMainDefinition } from "@apollo/client/utilities";
+import { DefaultApolloClient } from '@vue/apollo-composable';
 
 import App from './App.vue';
 import HelloWorld from './pages/HelloWorld.vue';
@@ -16,26 +18,39 @@ const routes = [
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
 ];
 
-// HTTP connection to the API
-const httpLink = createHttpLink({
-    // You should use an absolute URL here
-    uri: 'http://localhost:5000/graphql',
-  })
-  
-// Cache implementation
-const cache = new InMemoryCache()
-
-// Create the apollo client
-const apolloClient = new ApolloClient({
-    link: httpLink,
-    cache,
-})
-
 const router = createRouter({
     history: createWebHistory(),
     routes,
 })
 
+const httpLink = new HttpLink({
+    uri: "http://localhost:5000/graphql"
+});
+
+const wsLink = new WebSocketLink({
+    uri: `ws://localhost:5000/graphql`,
+    options: {
+      reconnect: true
+    }
+});
+
+const link = split(
+    // split based on operation type
+    ({ query }) => {
+      const definition = getMainDefinition(query);
+      return (
+        definition.kind === "OperationDefinition" &&
+        definition.operation === "subscription"
+      );
+    },
+    wsLink,
+    httpLink
+);
+
+const apolloClient = new ApolloClient({
+    link: link,
+    cache: new InMemoryCache(),
+})
 
 createApp(App)
 .use(router)
