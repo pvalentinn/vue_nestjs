@@ -14,7 +14,7 @@ export class Lobby {
     capacity: number;
 
     @Field(() => [User])
-    @Prop({ type: [Ms.Types.ObjectId], ref: User.name })
+    @Prop({ type: [Ms.Types.ObjectId], ref: 'User' })
     players: Ms.Types.ObjectId[] | User[];
 
 }

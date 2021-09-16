@@ -1,8 +1,8 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Parent, ResolveField } from '@nestjs/graphql';
 import { Schema as Ms } from 'mongoose';
 
 import { UserService } from './user.service';
-import { User } from './user.model';
+import { User, UserDocument } from './user.model';
 import { CreateUserInput, ListUserInput, UpdateUserInput } from './user.inputs'
 
 @Resolver(() => User)
@@ -32,5 +32,13 @@ export class UserResolver {
 	@Mutation(() => User)
 	removeUser(@Args('id', { type: () => String }) id: Ms.Types.ObjectId) {
 		return this.userService.delete(id);
+	}
+
+	@ResolveField()
+	async lobby(
+		@Parent() user: UserDocument
+	) {
+		await user.populate({ path: 'lobby', model: 'Lobby' })
+		return user.lobby
 	}
 }

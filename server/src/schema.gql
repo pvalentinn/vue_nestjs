@@ -73,5 +73,6 @@ input UpdateUserInput {
 
 type User {
   _id: String!
+  lobby: Lobby!
   login: String!
 }

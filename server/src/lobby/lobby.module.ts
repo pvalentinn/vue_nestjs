@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { PubSubModule } from 'src/pubsub/pubsub/pubsub.module';
 import { LobbyResolver } from './lobby.resolver';
 import { LobbyService } from './lobby.service';
 import { Lobby, LobbySchema } from './lobby.model';

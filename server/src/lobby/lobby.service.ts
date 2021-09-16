@@ -13,9 +13,13 @@ export class LobbyService {
         @InjectModel(User.name) private userModel: Model<UserDocument>
     ) {}
 
-    create(payload: CreateLobbyInput) {
+    async create(payload: CreateLobbyInput) {
         const createdLobby = new this.lobbyModel(payload);
-        return createdLobby.save();
+        const user = await this.userModel.findById(payload.players[0]).exec();
+
+        user.lobby = createdLobby._id;
+        await user.save();
+        return await createdLobby.save();
     }
 
     async addPlayer(payload: AddPlayerLobbyInput) {

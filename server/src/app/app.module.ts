@@ -8,7 +8,7 @@ import { LobbyModule } from '../lobby/lobby.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PubSubModule } from 'src/pubsub/pubsub/pubsub.module';
+import { PubSubModule } from 'src/pubsub/pubsub.module';
 
 @Module({
   imports: [
