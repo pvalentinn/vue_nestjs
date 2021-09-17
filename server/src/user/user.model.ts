@@ -13,7 +13,7 @@ export class User {
     @Prop()
     login: string;
 
-    @Field(() => Lobby)
+    @Field(() => Lobby, { nullable: true })
     @Prop({ type: Ms.Types.ObjectId, ref: 'Lobby' })
     lobby: Ms.Types.ObjectId;
 
