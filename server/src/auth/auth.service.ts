@@ -10,4 +10,11 @@ export class AuthService {
     ){}
 
     async validateUser(){}
+
+    async login(user: any) {
+        const payload = { login: user.login, sub: user._id };
+        return {
+          access_token: this.jwtService.sign(payload),
+        };
+    }
 }

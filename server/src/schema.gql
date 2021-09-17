@@ -52,6 +52,7 @@ type Mutation {
 type Query {
   lobbies(filters: ListLobbyInput): [Lobby!]!
   lobby(id: String!): Lobby!
+  me: User!
   user(id: String!): User!
   users(filters: ListUserInput): [User!]!
 }

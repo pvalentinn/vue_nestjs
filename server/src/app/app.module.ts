@@ -5,10 +5,11 @@ import { join } from 'path';
 
 import { UserModule } from '../user/user.module';
 import { LobbyModule } from '../lobby/lobby.module';
+import { AuthModule } from 'src/auth/auth.module';
+import { PubSubModule } from 'src/pubsub/pubsub.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PubSubModule } from 'src/pubsub/pubsub.module';
 import { LoggerMiddleware } from 'src/middlewares/logger.middleware';
 
 @Module({
@@ -23,7 +24,8 @@ import { LoggerMiddleware } from 'src/middlewares/logger.middleware';
     }),
     UserModule,
     LobbyModule,
-    PubSubModule
+    PubSubModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],

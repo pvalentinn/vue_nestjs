@@ -1,17 +1,40 @@
-import { Resolver, Query, Mutation, Args, Parent, ResolveField } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Parent, ResolveField, GqlExecutionContext } from '@nestjs/graphql';
+import { createParamDecorator, ExecutionContext, Req, UseGuards } from '@nestjs/common';
 import { Schema as Ms } from 'mongoose';
 
 import { UserService } from './user.service';
 import { User, UserDocument } from './user.model';
 import { CreateUserInput, ListUserInput, UpdateUserInput } from './user.inputs'
+import { AuthService } from 'src/auth/auth.service';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+
+
+export const CurrentUser = createParamDecorator(
+	(data: unknown, context: ExecutionContext) => {
+	  const ctx = GqlExecutionContext.create(context);
+	  return ctx.getContext().req.user;
+	},
+);
 
 @Resolver(() => User)
 export class UserResolver {
-	constructor(private readonly userService: UserService) {}
+	constructor(
+		private readonly userService: UserService,
+		private authService: AuthService
+	) {}
 
 	@Mutation(() => User)
-	createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
-		return this.userService.create(createUserInput);
+	async createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
+		let user = await this.userService.create(createUserInput);
+		console.log(await this.authService.login(user));
+		return user;
+	}
+
+	@Query(() => User, { name: 'me' })
+	@UseGuards(JwtAuthGuard)
+	me(@CurrentUser() user: any) {
+		console.log('here', user);
+		return this.userService.getById(user.userId);
 	}
 
 	@Query(() => [User], { name: 'users' })
