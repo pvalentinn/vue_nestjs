@@ -2,8 +2,6 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { IncomingMessage } from 'http';
-import {} from 'dotenv/config';
-
 
 let cookieExtractor = function(req: IncomingMessage) {
 	var token = null;
@@ -27,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 		super({
 			jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
 			ignoreExpiration: false,
-			secretOrKey: 'secret',
+			secretOrKey: process.env.JWT_SECRET
 		});
 	}
 

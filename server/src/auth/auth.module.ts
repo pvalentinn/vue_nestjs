@@ -1,23 +1,24 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
-import { UserService } from 'src/user/user.service';
-import {} from 'dotenv/config';
+import { ConfigModule } from '@nestjs/config';
 
-import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from 'src/user/user.model';
-
+@Global()
 @Module({
   imports: [
     PassportModule,
-    JwtModule.register({
-      secret: 'secret',
-      signOptions: { expiresIn: '30m' },
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env.local'],
     }),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '30m' },
+    })
   ],
-  providers: [UserService, AuthService, JwtStrategy]
+  providers: [AuthService, JwtStrategy],
+  exports: [AuthService]
 })
 export class AuthModule {}
