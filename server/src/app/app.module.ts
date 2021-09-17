@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule } from '@nestjs/mongoose';
 import { join } from 'path';
@@ -9,6 +9,7 @@ import { LobbyModule } from '../lobby/lobby.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PubSubModule } from 'src/pubsub/pubsub.module';
+import { LoggerMiddleware } from 'src/middlewares/logger.middleware';
 
 @Module({
   imports: [
@@ -27,4 +28,10 @@ import { PubSubModule } from 'src/pubsub/pubsub.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes({ path: "/graphql", method: RequestMethod.ALL })
+  }
+}
