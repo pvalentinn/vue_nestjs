@@ -10,23 +10,29 @@ import { PubSubModule } from 'src/pubsub/pubsub.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [
-    MongooseModule.forRoot('mongodb://localhost:27042/test'),
-    GraphQLModule.forRoot({
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      sortSchema: true,
-      playground: true,
-      debug: false,
-      installSubscriptionHandlers: true,
-    }),
-    UserModule,
-    LobbyModule,
-    PubSubModule,
-    AuthModule
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+  	imports: [
+		ConfigModule.forRoot({
+			isGlobal: true,
+			envFilePath: ['.env.local'],
+		}),
+		MongooseModule.forRoot(process.env.MONGODB_URL),
+		GraphQLModule.forRoot({
+			autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+			sortSchema: true,
+			playground: true,
+			debug: false,
+			installSubscriptionHandlers: true,
+		}),
+		LobbyModule,
+		UserModule,
+		PubSubModule,
+		AuthModule
+ 	],
+	controllers: [AppController],
+	providers: [AppService],
+	exports: [ConfigModule]
 })
 export class AppModule {}
