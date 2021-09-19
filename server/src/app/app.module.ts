@@ -5,6 +5,7 @@ import { join } from 'path';
 
 import { UserModule } from '../user/user.module';
 import { LobbyModule } from '../lobby/lobby.module';
+import { ChatModule } from 'src/chat/chat.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { PubSubModule } from 'src/pubsub/pubsub.module';
 
@@ -28,6 +29,7 @@ import { ConfigModule } from '@nestjs/config';
 		}),
 		LobbyModule,
 		UserModule,
+		ChatModule,
 		PubSubModule,
 		AuthModule
  	],

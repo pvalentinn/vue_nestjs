@@ -2,16 +2,33 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input AddMessageInput {
+  id: String!
+  text: String!
+  user_id: String!
+}
+
 type AddPlayerReturn {
   error: Boolean!
   message: String
   result: Lobby
 }
 
+type Chat {
+  _id: String!
+  lobby: Lobby!
+  messages: [Message!]!
+}
+
 input CreateUserInput {
   login: String!
   secret: String
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 input ListLobbyInput {
   _id: String
@@ -30,8 +47,17 @@ type Lobby {
   players: [User!]!
 }
 
+type Message {
+  created_at: DateTime!
+  id: Float!
+  text: String!
+  user_id: String!
+}
+
 type Mutation {
+  addMessage(AddMessageInput: AddMessageInput!): Chat!
   addPlayer(lobby_id: String!): AddPlayerReturn!
+  createChat(lobby_id: String!): Chat!
   createLobby: Lobby!
   createUser(createUserInput: CreateUserInput!): User!
   removeLobby(id: String!): Lobby!
@@ -41,6 +67,7 @@ type Mutation {
 }
 
 type Query {
+  chat(id: String!): Chat!
   lobbies(filters: ListLobbyInput): [Lobby!]!
   lobby(id: String!): Lobby!
   me: User!
