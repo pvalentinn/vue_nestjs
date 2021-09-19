@@ -2,24 +2,15 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-input AddPlayerLobbyInput {
-  id: String!
-  player_id: String!
-}
-
 type AddPlayerReturn {
   error: Boolean!
   message: String
   result: Lobby
 }
 
-input CreateLobbyInput {
-  capacity: Float!
-  players: [String!]!
-}
-
 input CreateUserInput {
   login: String!
+  secret: String
 }
 
 input ListLobbyInput {
@@ -40,8 +31,8 @@ type Lobby {
 }
 
 type Mutation {
-  addPlayer(addPlayerLobbyInput: AddPlayerLobbyInput!): AddPlayerReturn!
-  createLobby(createLobbyInput: CreateLobbyInput!): Lobby!
+  addPlayer(lobby_id: String!): AddPlayerReturn!
+  createLobby: Lobby!
   createUser(createUserInput: CreateUserInput!): User!
   removeLobby(id: String!): Lobby!
   removeUser(id: String!): User!

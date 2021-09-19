@@ -5,6 +5,9 @@ import { Schema as Ms } from 'mongoose';
 export class CreateUserInput {
   @Field(() => String)
   login: string;
+
+  @Field(() => String, { nullable: true })
+  secret?: string;
 }
 
 @InputType()

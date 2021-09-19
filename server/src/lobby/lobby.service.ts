@@ -4,7 +4,8 @@ import { Model, Schema as Ms } from 'mongoose';
 
 import { Lobby, LobbyDocument } from './lobby.model';
 import { User, UserDocument } from '../user/user.model';
-import { CreateLobbyInput, ListLobbyInput, UpdateLobbyInput, AddPlayerLobbyInput } from './lobby.inputs';
+import { ListLobbyInput, UpdateLobbyInput, AddPlayerLobbyInput } from './lobby.inputs';
+import { Role } from 'src/role/role.decorator';
 
 @Injectable()
 export class LobbyService {
@@ -13,11 +14,12 @@ export class LobbyService {
         @InjectModel(User.name) private userModel: Model<UserDocument>
     ) {}
 
-    async create(payload: CreateLobbyInput) {
-        const createdLobby = new this.lobbyModel(payload);
-        const user = await this.userModel.findById(payload.players[0]).exec();
+    async create(user_id: Ms.Types.ObjectId) {
+        const createdLobby = new this.lobbyModel({ capacity: 4, players: [user_id] });
+        const user = await this.userModel.findById(user_id).exec();
 
         user.lobby = createdLobby._id;
+        user.roles = [...user.roles, Role.Owner];
         await user.save();
         return await createdLobby.save();
     }
@@ -37,14 +39,12 @@ export class LobbyService {
             let user = await this.userModel.findById(player_id).exec();
             if(!user) return { error: true, message: "Cannot find player"  }
 
-            //@ts-ignore
             lobby.players.push(player_id);
             return {
                 error: false,
                 result: lobby.save()
             };
         } catch(e) {
-            console.log(e)
             return { error: true, message: e.message };
         }
     }

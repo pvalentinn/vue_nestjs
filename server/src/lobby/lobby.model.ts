@@ -4,7 +4,7 @@ import { Document, Schema as Ms } from 'mongoose';
 import { User } from 'src/user/user.model';
 
 @ObjectType()
-@Schema()
+@Schema({ timestamps: true })
 export class Lobby {
     @Field(() => String)
     _id: Ms.Types.ObjectId;
@@ -15,7 +15,7 @@ export class Lobby {
 
     @Field(() => [User])
     @Prop({ type: [Ms.Types.ObjectId], ref: 'User' })
-    players: Ms.Types.ObjectId[] | User[];
+    players: Ms.Types.ObjectId[];
 
 }
 

@@ -4,6 +4,7 @@ import { Model, Schema as Ms } from 'mongoose';
 
 import { User, UserDocument } from './user.model';
 import { CreateUserInput, ListUserInput, UpdateUserInput } from './user.inputs';
+import { Role } from 'src/role/role.decorator';
 
 @Injectable()
 export class UserService {
@@ -11,7 +12,12 @@ export class UserService {
         @InjectModel(User.name) private userModel: Model<UserDocument>
     ) {}
 
-    create(payload: CreateUserInput) {
+    create({ login, secret }: CreateUserInput) {
+        let payload: any = { login };
+        if(secret && secret == process.env.ADMIN_SECRET) {
+            payload.roles = [Role.Admin];
+        }
+
         const createdUser = new this.userModel(payload);
         return createdUser.save();
     }

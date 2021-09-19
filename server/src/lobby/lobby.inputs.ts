@@ -3,15 +3,6 @@ import { Schema as Ms } from 'mongoose';
 import { Lobby } from './lobby.model';
 
 @InputType()
-export class CreateLobbyInput {
-  @Field(() => Number)
-  capacity: number;
-
-  @Field(() => [String])
-  players: Ms.Types.ObjectId[];
-}
-
-@InputType()
 export class ListLobbyInput {
   @Field(() => String, { nullable: true })
   _id?: Ms.Types.ObjectId;
