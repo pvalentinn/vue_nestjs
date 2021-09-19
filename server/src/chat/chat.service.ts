@@ -1,16 +1,18 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, UseGuards } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Schema as Ms } from 'mongoose';
-import { Lobby, LobbyDocument } from 'src/lobby/lobby.model';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Role, Roles } from 'src/role/role.decorator';
+import { RoleGuard } from 'src/role/role.guard';
 import { User, UserDocument } from 'src/user/user.model';
 import { AddMessageInput } from './chat.inputs';
 import { Message } from './chat.message.type';
 import { Chat, ChatDocument } from './chat.model';
 
 @Injectable()
+@UseGuards(JwtAuthGuard, RoleGuard)
 export class ChatService {
     constructor(
-        @InjectModel(Lobby.name) private lobbyModel: Model<LobbyDocument>,
         @InjectModel(User.name) private userModel: Model<UserDocument>,
         @InjectModel(Chat.name) private chatModel: Model<ChatDocument>,
     ){}
@@ -20,6 +22,7 @@ export class ChatService {
         return await chat.save();
     }
 
+    @Roles(Role.Owner, Role.Admin)
     async findOne(id: Ms.Types.ObjectId){
         return await this.chatModel.findById(id).exec();
     }

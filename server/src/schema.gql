@@ -44,6 +44,7 @@ input ListUserInput {
 type Lobby {
   _id: String!
   capacity: Float!
+  chat: Chat!
   players: [User!]!
 }
 
@@ -57,7 +58,6 @@ type Message {
 type Mutation {
   addMessage(AddMessageInput: AddMessageInput!): Chat!
   addPlayer(lobby_id: String!): AddPlayerReturn!
-  createChat(lobby_id: String!): Chat!
   createLobby: Lobby!
   createUser(createUserInput: CreateUserInput!): User!
   removeLobby(id: String!): Lobby!

@@ -19,13 +19,6 @@ export class ChatResolver {
 	) {}
 
     @Mutation(() => Chat)
-    createChat(
-        @Args('lobby_id', { type: () => String }) lobby_id: Ms.Types.ObjectId
-    ){
-        return this.chatService.create(lobby_id);
-    }
-
-    @Mutation(() => Chat)
     addMessage(
         @Args('AddMessageInput', { type: () => AddMessageInput }) payload: AddMessageInput
     ) {

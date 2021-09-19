@@ -1,6 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as Ms } from 'mongoose';
+import { Chat } from 'src/chat/chat.model';
 import { User } from 'src/user/user.model';
 
 @ObjectType()
@@ -17,6 +18,9 @@ export class Lobby {
     @Prop({ type: [Ms.Types.ObjectId], ref: 'User' })
     players: Ms.Types.ObjectId[];
 
+    @Field(() => Chat)
+    @Prop({ type: Ms.Types.ObjectId, ref: 'Chat', default: new Chat() })
+    chat: Ms.Types.ObjectId;
 }
 
 export type LobbyDocument = Lobby & Document;

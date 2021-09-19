@@ -6,11 +6,13 @@ import { LobbyService } from './lobby.service';
 import { Lobby, LobbySchema } from './lobby.model';
 
 import { UserModule } from 'src/user/user.module';
+import { ChatModule } from 'src/chat/chat.module';
 
 @Module({
     imports: [
         MongooseModule.forFeature([{ name: Lobby.name, schema: LobbySchema }]),
-        UserModule
+        UserModule,
+        ChatModule
     ],
     providers: [LobbyService, LobbyResolver],
     exports: [LobbyService, MongooseModule]

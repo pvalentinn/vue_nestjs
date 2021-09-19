@@ -79,4 +79,12 @@ export class LobbyResolver {
 		await lobby.populate({ path: 'players', model: User.name })
 		return lobby.players
 	}
+
+	@ResolveField()
+	async chat(
+		@Parent() lobby: LobbyDocument
+	) {
+		await lobby.populate({ path: "chat", model: "Chat" });
+		return lobby.chat;
+	}
 }

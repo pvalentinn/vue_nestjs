@@ -6,21 +6,27 @@ import { Lobby, LobbyDocument } from './lobby.model';
 import { User, UserDocument } from '../user/user.model';
 import { ListLobbyInput, UpdateLobbyInput, AddPlayerLobbyInput } from './lobby.inputs';
 import { Role } from 'src/role/role.decorator';
+import { Chat, ChatDocument } from 'src/chat/chat.model';
 
 @Injectable()
 export class LobbyService {
     constructor(
         @InjectModel(Lobby.name) private lobbyModel: Model<LobbyDocument>,
-        @InjectModel(User.name) private userModel: Model<UserDocument>
+        @InjectModel(User.name) private userModel: Model<UserDocument>,
+        @InjectModel(Chat.name) private chatModel: Model<ChatDocument>
     ) {}
 
     async create(user_id: Ms.Types.ObjectId) {
         const createdLobby = new this.lobbyModel({ capacity: 4, players: [user_id] });
-        const user = await this.userModel.findById(user_id).exec();
 
+        const user = await this.userModel.findById(user_id).exec();
         user.lobby = createdLobby._id;
         user.roles = [...user.roles, Role.Owner];
         await user.save();
+
+        const chat = await this.chatModel.create({ lobby: createdLobby._id });
+        createdLobby.chat = chat._id;
+
         return await createdLobby.save();
     }
 
