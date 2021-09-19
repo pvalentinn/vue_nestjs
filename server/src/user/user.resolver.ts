@@ -13,7 +13,6 @@ import { RoleGuard } from 'src/role/role.guard';
 
 
 @Resolver(() => User)
-@UseGuards(JwtAuthGuard, RoleGuard)
 export class UserResolver {
 	constructor(
 		private readonly userService: UserService,
@@ -21,7 +20,6 @@ export class UserResolver {
 	) {}
 
 	@Mutation(() => User)
-	@UseGuards()
 	async createUser(
 		@Args('createUserInput') createUserInput: CreateUserInput,
 		@Context() { req }: ContextType
@@ -40,28 +38,32 @@ export class UserResolver {
 	@Query(() => User, { name: 'me' })
 	@UseGuards(JwtAuthGuard)
 	me(@Context() { req }: ContextType ) {
-		return this.userService.getById(req.user.user_id);
+		return this.userService.getById(req.user.sub);
 	}
 
 	@Query(() => [User], { name: 'users' })
+	@UseGuards(JwtAuthGuard, RoleGuard)
 	@Roles(Role.Admin)
 	findAll(@Args('filters', { nullable: true }) filters: ListUserInput ) {
 		return this.userService.list(filters);
 	}
 
 	@Query(() => User, { name: 'user' })
+	@UseGuards(JwtAuthGuard, RoleGuard)
 	@Roles(Role.Admin)
 	findOne(@Args('id', { type: () => String }) id: Ms.Types.ObjectId ) {
 		return this.userService.getById(id);
 	}
 
 	@Mutation(() => User)
+	@UseGuards(JwtAuthGuard, RoleGuard)
 	@Roles(Role.User, Role.Owner)
 	updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
 		return this.userService.update(updateUserInput);
 	}
 
 	@Mutation(() => User)
+	@UseGuards(JwtAuthGuard, RoleGuard)
 	@Roles(Role.Admin)
 	removeUser(@Args('id', { type: () => String }) id: Ms.Types.ObjectId) {
 		return this.userService.delete(id);
