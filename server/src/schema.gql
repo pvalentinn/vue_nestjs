@@ -8,12 +8,6 @@ input AddMessageInput {
   user_id: String!
 }
 
-type AddPlayerReturn {
-  error: Boolean!
-  message: String
-  result: Lobby
-}
-
 type Chat {
   _id: String!
   lobby: Lobby!
@@ -57,9 +51,10 @@ type Message {
 
 type Mutation {
   addMessage(AddMessageInput: AddMessageInput!): Chat!
-  addPlayer(lobby_id: String!): AddPlayerReturn!
+  addPlayer(lobby_id: String!): Lobby!
   createLobby: Lobby!
   createUser(createUserInput: CreateUserInput!): User!
+  leaveLobby: Lobby!
   removeLobby(id: String!): Lobby!
   removeUser(id: String!): User!
   updateLobby(updateLobbyInput: UpdateLobbyInput!): Lobby!

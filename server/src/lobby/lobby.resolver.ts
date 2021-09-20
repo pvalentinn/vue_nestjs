@@ -11,56 +11,79 @@ import { User } from 'src/user/user.model';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RoleGuard } from 'src/role/role.guard';
 import { Role, Roles } from 'src/role/role.decorator';
+import { AuthService } from 'src/auth/auth.service';
 
 
 @Resolver(() => Lobby)
-@UseGuards(JwtAuthGuard, RoleGuard)
 export class LobbyResolver {
 	constructor(
 		@Inject('PUB_SUB') private pubSub: PubSub,
 		private readonly lobbyService: LobbyService,
+		private readonly authService: AuthService,
 	) {}
 
 	@Mutation(() => Lobby)
+	@UseGuards(JwtAuthGuard, RoleGuard)
 	@Roles(Role.User, Role.Admin)
-	createLobby(@Context(){ req }: ContextType) {
-		return this.lobbyService.create(req.user.sub);
+	async createLobby(@Context(){ req }: ContextType) {
+		let { user, lobby } = await this.lobbyService.create(req.user.sub);
+
+		let { access_token } = await this.authService.login(user);
+		if(access_token) {
+			req.res.setHeader('Set-Cookie', 'token=' + access_token + "; Path=/;");
+		}
+
+		return lobby
 	}
 
 	@Query(() => [Lobby], { name: 'lobbies' })
+	@UseGuards(JwtAuthGuard, RoleGuard)
 	@Roles(Role.Admin)
 	findAll(@Args('filters', { nullable: true }) filters: ListLobbyInput ) {
 		return this.lobbyService.list(filters);
 	}
 
 	@Query(() => Lobby, { name: 'lobby' })
+	@UseGuards(JwtAuthGuard, RoleGuard)
 	@Roles(Role.User, Role.Admin)
 	findOne(@Args('id', { type: () => String }) id: Ms.Types.ObjectId ) {
 		return this.lobbyService.getById(id);
 	}
 
 	@Mutation(() => Lobby)
+	@UseGuards(JwtAuthGuard, RoleGuard)
 	@Roles(Role.Owner, Role.Admin)
 	updateLobby(@Args('updateLobbyInput') updateLobbyInput: UpdateLobbyInput) {
 		return this.lobbyService.update(updateLobbyInput);
 	}
 
 	@Mutation(() => Lobby)
+	@UseGuards(JwtAuthGuard, RoleGuard)
 	@Roles(Role.Owner, Role.Admin)
 	removeLobby(@Args('id', { type: () => String }) id: Ms.Types.ObjectId) {
 		return this.lobbyService.delete(id);
 	}
 
-	@Mutation(() => AddPlayerReturn, { name: 'addPlayer' })
+	@UseGuards(JwtAuthGuard, RoleGuard)
+	@Mutation(() => Lobby, { name: 'addPlayer' })
 	async addPlayer(
 		@Args('lobby_id', { type: () => String }) lobby_id: Ms.Types.ObjectId,
 		@Context() { req }: ContextType 
 	) {
-		let res = await this.lobbyService.addPlayer({ player_id: req.user.sub, id: lobby_id });
-		if(!res.error) {
-			this.pubSub.publish('updatePlayers', await res.result);
-		}
-		return res;
+		let lobby = await this.lobbyService.addPlayer({ player_id: req.user.sub, id: lobby_id });
+		await this.pubSub.publish('updatePlayers', lobby);
+		return lobby;
+	}
+
+	@UseGuards(JwtAuthGuard, RoleGuard)
+	@Mutation(() => Lobby, { name: 'leaveLobby' })
+	async leaveLobby(
+		@Context() { req }: ContextType 
+	) {
+		let lobby = await this.lobbyService.removePlayer(req.user.sub);
+		this.pubSub.publish('updatePlayers', lobby);
+	
+		return lobby;
 	}
 
 	@Subscription(() => Lobby,

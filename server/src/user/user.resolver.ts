@@ -27,7 +27,7 @@ export class UserResolver {
 		let user = await this.userService.create(createUserInput);
 		let { access_token } = await this.authService.login(user);
 		if(access_token) {
-			req.res.setHeader('Set-Cookie', 'token=' + access_token + "; Path=/; HttpOnly;");
+			req.res.setHeader('Set-Cookie', 'token=' + access_token + "; Path=/;");
 			
 			return user;
 		} else {

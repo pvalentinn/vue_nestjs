@@ -19,7 +19,7 @@ export class Lobby {
     players: Ms.Types.ObjectId[];
 
     @Field(() => Chat)
-    @Prop({ type: Ms.Types.ObjectId, ref: 'Chat', default: new Chat() })
+    @Prop({ type: Ms.Types.ObjectId, ref: 'Chat' })
     chat: Ms.Types.ObjectId;
 }
 

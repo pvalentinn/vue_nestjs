@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Schema as Ms } from 'mongoose';
 
@@ -25,9 +25,10 @@ export class LobbyService {
         await user.save();
 
         const chat = await this.chatModel.create({ lobby: createdLobby._id });
+        console.log(chat);
         createdLobby.chat = chat._id;
 
-        return await createdLobby.save();
+        return { user, lobby: await createdLobby.save() }
     }
 
     async addPlayer(payload: AddPlayerLobbyInput) {
@@ -35,23 +36,44 @@ export class LobbyService {
 
         try {
             let lobby = await this.lobbyModel.findById(id).exec();
-            if(!lobby) return { error: true, message: "Cannot find lobby" }
+            if(!lobby) return new UnauthorizedException("Cannot find lobby")
+           
 
             let players = lobby.players as Array<Ms.Types.ObjectId>;
     
-            if(lobby.players.length + 1 > lobby.capacity) return { error: true, message: "Lobby is full" }
-            if(players.find((e: Ms.Types.ObjectId) => player_id == e)) return { error: true, message: "Player already in lobby" }
+            if(lobby.players.length + 1 > lobby.capacity) return new UnauthorizedException("Lobby is full")
+            if(players.find((e: Ms.Types.ObjectId) => player_id == e)) return new UnauthorizedException("Player already in lobby")
 
             let user = await this.userModel.findById(player_id).exec();
-            if(!user) return { error: true, message: "Cannot find player"  }
+            if(!user) return new UnauthorizedException("Can't find player")
+
+            user.lobby = lobby._id;
+            await user.save();
 
             lobby.players.push(player_id);
-            return {
-                error: false,
-                result: lobby.save()
-            };
+            return await lobby.save();
         } catch(e) {
-            return { error: true, message: e.message };
+            return new UnauthorizedException(e.message);
+        }
+    }
+
+    async removePlayer(id: Ms.Types.ObjectId) {
+        try {
+            let user = await this.userModel.findById(id).exec();
+            if(!user) return new UnauthorizedException("User not found!");
+
+            let lobby = await this.lobbyModel.findById(user.lobby).exec();
+            console.log(lobby, user.lobby);
+            if(!lobby) return new UnauthorizedException("Lobby not found!");
+
+            user.lobby = null;
+            user.save();
+            //TAKE CHARGE OF OWNER ROLES
+            lobby.players = lobby.players.filter((e) => e != user.id);
+            return await lobby.save();
+
+        } catch(e) {
+            return new UnauthorizedException(e.message);
         }
     }
 
