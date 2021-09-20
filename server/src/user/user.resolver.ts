@@ -64,9 +64,9 @@ export class UserResolver {
 
 	@Mutation(() => User)
 	@UseGuards(JwtAuthGuard, RoleGuard)
-	@Roles(Role.Admin)
-	removeUser(@Args('id', { type: () => String }) id: Ms.Types.ObjectId) {
-		return this.userService.delete(id);
+	@Roles(Role.User, Role.Owner, Role.Admin)
+	removeUser(@Context() { req }: ContextType) {
+		return this.userService.delete(req.user.sub);
 	}
 
 	@ResolveField()

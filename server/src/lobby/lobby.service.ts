@@ -25,7 +25,6 @@ export class LobbyService {
         await user.save();
 
         const chat = await this.chatModel.create({ lobby: createdLobby._id });
-        console.log(chat);
         createdLobby.chat = chat._id;
 
         return { user, lobby: await createdLobby.save() }

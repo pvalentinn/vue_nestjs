@@ -6,7 +6,7 @@ import { Context, ContextType } from 'src/context.decorator';
 
 import { LobbyService } from './lobby.service';
 import { Lobby, LobbyDocument } from './lobby.model';
-import { AddPlayerReturn, ListLobbyInput, UpdateLobbyInput } from './lobby.inputs'
+import { ListLobbyInput, UpdateLobbyInput } from './lobby.inputs'
 import { User } from 'src/user/user.model';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RoleGuard } from 'src/role/role.guard';
@@ -65,8 +65,8 @@ export class LobbyResolver {
 	}
 
 	@UseGuards(JwtAuthGuard, RoleGuard)
-	@Mutation(() => Lobby, { name: 'addPlayer' })
-	async addPlayer(
+	@Mutation(() => Lobby, { name: 'joinLobby' })
+	async joinLobby(
 		@Args('lobby_id', { type: () => String }) lobby_id: Ms.Types.ObjectId,
 		@Context() { req }: ContextType 
 	) {

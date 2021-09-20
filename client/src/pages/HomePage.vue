@@ -46,7 +46,7 @@ let submit = async (e: SubmitEvent) => {
 </script>
 
 
-<style>
+<style scoped>
 * {
     font-family: OpenSans-Regular, sans-serif;
     color: #212529;

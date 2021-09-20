@@ -51,12 +51,12 @@ type Message {
 
 type Mutation {
   addMessage(AddMessageInput: AddMessageInput!): Chat!
-  addPlayer(lobby_id: String!): Lobby!
   createLobby: Lobby!
   createUser(createUserInput: CreateUserInput!): User!
+  joinLobby(lobby_id: String!): Lobby!
   leaveLobby: Lobby!
   removeLobby(id: String!): Lobby!
-  removeUser(id: String!): User!
+  removeUser: User!
   updateLobby(updateLobbyInput: UpdateLobbyInput!): Lobby!
   updateUser(updateUserInput: UpdateUserInput!): User!
 }

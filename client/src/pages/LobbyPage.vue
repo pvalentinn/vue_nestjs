@@ -7,50 +7,29 @@
             <li v-for="player in players" :key="player._id">{{ player.login }}</li>
         </ul>
     </div>
+    <ModalJoin v-if="show" :hide="hide" :id="id as string" />
 </template>
 
 <script setup lang='ts'>
 import { ref } from "vue";
 import { useQuery, useSubscription } from "@vue/apollo-composable";
 import { useRoute, useRouter } from "vue-router";
-import gql from "graphql-tag";
 
-let route = useRoute();
+import { GET_LOBBY, SUBSCRIPTION } from "../graphql/lobby.gql";
+import ModalJoin from "../components/ModalJoin.vue";
+
+let { params: { id } } = useRoute();
 let router = useRouter();
-let { id } = route.params;
+let show = ref(false);
 
 let players = ref<null | { _id: string, login: string }[]>(null);
-
-const GET_LOBBY = gql`
-    query getLobby($id: String!){
-        lobby(id: $id){
-            capacity,
-            players {
-                _id,
-                login
-            }
-        }
-    }
-`;
-
-const SUBSCRIPTION = gql`
-    subscription updatePlayers($id: String!) {
-        updatePlayers(id: $id) {
-            players {
-                _id,
-                login
-            }
-        }
-    }
-`;
-
-console.log(id);
 
 const { loading, onResult, onError } = useQuery(GET_LOBBY, { id });
 const { onResult: updatePlayers } = useSubscription(SUBSCRIPTION, { id });
 
+let hide = () => show.value = false;
+
 updatePlayers(result => {
-    console.log(result)
     let updated_players = result.data.updatePlayers.players;
     if (updated_players) {
         console.log(updated_players);
@@ -59,17 +38,15 @@ updatePlayers(result => {
 })
 
 onResult(res => {
-    console.log(res.data)
     if (res.data == undefined) {
-        router.push({ name: 'NotFound' });
+        if (res.error?.graphQLErrors[0].extensions?.code == "UNAUTHENTICATED") show.value = true;
+        else router.push({ name: 'NotFound' });
     } else {
         players.value = res.data.lobby.players;
     }
 });
 
-onError((e) => {
-    console.log(e);
-    router.push({ name: 'NotFound' });
-})
+onError((e) => !show.value && router.push({ name: 'Home' }))
+
 
 </script>

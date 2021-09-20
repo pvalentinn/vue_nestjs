@@ -13,25 +13,32 @@
 
 <script setup lang="ts">
 import { useCookie } from 'vue-cookie-next';
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { useMutation } from '@vue/apollo-composable';
+import { REMOVE_USER } from './graphql/user.gql';
 import jwt_decode from "jwt-decode";
 
 const { getCookie, removeCookie } = useCookie();
 const router = useRouter();
+let route = useRoute();
 
 let token = getCookie('token');
 let lobby: string | null | undefined;
 
-if (token) {
-	({ lobby } = jwt_decode(token));
+if (token) ({ lobby } = jwt_decode(token));
 
-	if (lobby) router.push({ name: "Lobby", params: { id: lobby } })
+if (lobby && route.params.id != lobby) {
+	router.push({ name: "Lobby", params: { id: lobby } })
 }
 
-let handler = (e: Event) => {
+let handler = async (e: Event) => {
 	e.preventDefault();
-	if (!lobby) removeCookie('token');
+	if (!lobby) {
+		removeCookie('token');
+		useMutation(REMOVE_USER);
+	}
 }
 
 window.addEventListener("beforeunload", handler)
+
 </script>

@@ -15,7 +15,7 @@ import LobbyPage from './pages/LobbyPage.vue';
 const routes = [
     { path: '/', name:'Home', component: HomePage},
     { path: '/test', name: 'Test', component: HelloWorld, props: true },
-    { path: '/lobby/:id', name: 'Lobby', component: LobbyPage },
+    { path: '/lobby/:id([0-9a-f]{20,25})', name: 'Lobby', component: LobbyPage },
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
 ];
 
