@@ -26,6 +26,10 @@ import { ConfigModule } from '@nestjs/config';
 			playground: true,
 			debug: false,
 			installSubscriptionHandlers: true,
+			cors: {
+				origin: process.env.CLIENT_URL,
+				credentials: true,
+			}
 		}),
 		LobbyModule,
 		UserModule,
