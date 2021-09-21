@@ -3,9 +3,9 @@
 
 
 "@apollo/client@^3.4.11":
-  version "3.4.12"
-  resolved "https://registry.yarnpkg.com/@apollo/client/-/client-3.4.12.tgz#7f1f5ff0988ccd736ea666cdc54eb4e62e860b5d"
-  integrity sha512-k4Hsl+4zhqruKnI7iFIYzi7JGZgodrUEF/XF9gXde3blxMwID2zKj+pKB8vQ8MWEbfRMeuEno+PZkatR2nE8Mw==
+  version "3.4.13"
+  resolved "https://registry.yarnpkg.com/@apollo/client/-/client-3.4.13.tgz#81670c27b376e80e3845ecf6468e534d908fa5b5"
+  integrity sha512-/nH8z/0X6WJ+wtUREHTlKQGX4lo6u3XkF1hy+k4eCxLZzT5+VRw1rm92iIkj1H85vep/eE/KV3DdRq1x3t9NnQ==
   dependencies:
     "@graphql-typed-document-node/core" "^3.0.0"
     "@wry/context" "^0.6.0"
@@ -66,6 +66,11 @@
   version "0.0.48"
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.48.tgz#18dc8091b285df90db2f25aa7d906cfc394b7f74"
   integrity sha512-LfZwXoGUDo0C3me81HXgkBg5CTQYb6xzEl+fNmbO4JdRiSKQ8A0GD1OBBvKAIsbCUgoyAty7m99GqqMQe784ew==
+
+"@types/js-cookie@^2.2.7":
+  version "2.2.7"
+  resolved "https://registry.yarnpkg.com/@types/js-cookie/-/js-cookie-2.2.7.tgz#226a9e31680835a6188e887f3988e60c04d3f6a3"
+  integrity sha512-aLkWa0C0vO5b4Sr798E26QgOkss68Un0bLjs7u9qxzPT5CG+8DuNTffWES58YzJs3hrVAOs1wonycqEBqNJubA==
 
 "@types/jwt-decode@^3.1.0":
   version "3.1.0"
@@ -139,12 +144,13 @@
     vscode-uri "^2.1.2"
 
 "@vue/apollo-composable@^4.0.0-alpha.14":
-  version "4.0.0-alpha.14"
-  resolved "https://registry.yarnpkg.com/@vue/apollo-composable/-/apollo-composable-4.0.0-alpha.14.tgz#6e3358fa9b815b38384d3da59b5c2b77b2b229d3"
-  integrity sha512-bIOWRGk1j+b2ebsLfwQkzqvJd1tCpHZiBF2Qe88RTLUxtypdkdSW6YpLxwJgNoRv5W55sM9WI+nP2ziv2nqBZg==
+  version "4.0.0-alpha.15"
+  resolved "https://registry.yarnpkg.com/@vue/apollo-composable/-/apollo-composable-4.0.0-alpha.15.tgz#4a93417cb112cc1ad9c8fbdf47008909f71fca5b"
+  integrity sha512-c/xk/po4nTcAnwIG+ZK0XFwY84BiKJquGnK2T+qolp0Saeb5amoTtHu6CEZ6Xd635otqUTY8SODOoFraoAttNQ==
   dependencies:
-    throttle-debounce "^2.3.0"
-    vue-demi "^0.9.1"
+    throttle-debounce "^3.0.1"
+    ts-essentials "^8.1.0"
+    vue-demi "^0.11.4"
 
 "@vue/compiler-core@3.2.12":
   version "3.2.12"
@@ -459,9 +465,9 @@ graphql-tag@^2.12.3, graphql-tag@^2.12.5:
     tslib "^2.1.0"
 
 graphql@^15.5.3:
-  version "15.5.3"
-  resolved "https://registry.yarnpkg.com/graphql/-/graphql-15.5.3.tgz#c72349017d5c9f5446a897fe6908b3186db1da00"
-  integrity sha512-sM+jXaO5KinTui6lbK/7b7H/Knj9BpjGxZ+Ki35v7YbUJxxdBCUqNM0h3CRVU1ZF9t5lNiBzvBCSYPvIwxPOQA==
+  version "15.6.0"
+  resolved "https://registry.yarnpkg.com/graphql/-/graphql-15.6.0.tgz#e69323c6a9780a1a4b9ddf7e35ca8904bb04df02"
+  integrity sha512-WJR872Zlc9hckiEPhXgyUftXH48jp2EjO5tgBBOyNMRJZ9fviL2mJBD6CAysk6N5S0r9BTs09Qk39nnJBkvOXQ==
 
 has-symbols@^1.0.1, has-symbols@^1.0.2:
   version "1.0.2"
@@ -546,6 +552,11 @@ iterall@^1.2.1:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/iterall/-/iterall-1.3.0.tgz#afcb08492e2915cbd8a0884eb93a8c94d0d72fea"
   integrity sha512-QZ9qOMdF+QLHxy1QIpUHUU1D5pS2CG2P69LF6L6CPjPYA/XMOmKV3PZpawHoAjHNyB0swdVTRxdYT4tbBbxqwg==
+
+js-cookie@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-3.0.1.tgz#9e39b4c6c2f56563708d7d31f6f5f21873a92414"
+  integrity sha512-+0rgsUXZu4ncpPxRL+lNEptWMOWl9etvPHc/koSRp6MPwpRYAhmk0dUG00J4bxVV3r9uUzfo24wW0knS07SKSw==
 
 js-stringify@^1.0.2:
   version "1.0.2"
@@ -1003,10 +1014,10 @@ symbol-observable@^4.0.0:
   resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-4.0.0.tgz#5b425f192279e87f2f9b937ac8540d1984b39205"
   integrity sha512-b19dMThMV4HVFynSAM1++gBHAbk2Tc/osgLIBZMKsyqh34jb2e8Os7T6ZW/Bt3pJFdBTd2JwAnAAEQV7rSNvcQ==
 
-throttle-debounce@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/throttle-debounce/-/throttle-debounce-2.3.0.tgz#fd31865e66502071e411817e241465b3e9c372e2"
-  integrity sha512-H7oLPV0P7+jgvrk+6mwwwBDmxTaxnu9HMXmloNLXwnNO0ZxZ31Orah2n8lU1eMPvsaowP2CX+USCgyovXfdOFQ==
+throttle-debounce@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/throttle-debounce/-/throttle-debounce-3.0.1.tgz#32f94d84dfa894f786c9a1f290e7a645b6a19abb"
+  integrity sha512-dTEWWNu6JmeVXY0ZYoPuH5cRIwc0MeGbJwah9KUNYSJwommQpCzTySTpEe8Gs1J23aeWEuAobe4Ag7EHVt/LOg==
 
 to-fast-properties@^2.0.0:
   version "2.0.0"
@@ -1017,6 +1028,11 @@ token-stream@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/token-stream/-/token-stream-1.0.0.tgz#cc200eab2613f4166d27ff9afc7ca56d49df6eb4"
   integrity sha1-zCAOqyYT9BZtJ/+a/HylbUnfbrQ=
+
+ts-essentials@^8.1.0:
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/ts-essentials/-/ts-essentials-8.1.0.tgz#bc982b242db226b84c89477d3d42630ee2954513"
+  integrity sha512-34xALeQADWRYq9kbtprP4KdpTQ3v3BBIs/U4SpaP+C4++B8ijXY5NnILRJLchQVMzw7YBzKuGMUMrI9uT+ALVw==
 
 ts-invariant@^0.9.0:
   version "0.9.3"
@@ -1191,15 +1207,10 @@ vscode-vue-languageservice@^0.27.0:
     vscode-pug-languageservice "^0.27.22"
     vscode-typescript-languageservice "^0.27.22"
 
-vue-cookie-next@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/vue-cookie-next/-/vue-cookie-next-1.3.0.tgz#2d7aadf55c2c6a25d02a3d27d8161c3f731a6e15"
-  integrity sha512-+EinbhSf0c0M8cijCXRVgcvYBIm0lmu3/WKeFUokU93R1J3DxkkBHn5wOc9IyJj9ugAPI0d9EnhcOiOFNA/YVQ==
-
-vue-demi@^0.9.1:
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.9.1.tgz#25d6e1ebd4d4010757ff3571e2bf6a1d7bf3de82"
-  integrity sha512-7s1lufRD2l369eFWPjgLvhqCRk0XzGWJsQc7K4q+0mZtixyGIvsK1Cg88P4NcaRIEiBuuN4q1NN4SZKFKwQswA==
+vue-demi@^0.11.4:
+  version "0.11.4"
+  resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.11.4.tgz#6101992fe4724cf5634018a16e953f3052e94e2a"
+  integrity sha512-/3xFwzSykLW2HiiLie43a+FFgNOcokbBJ+fzvFXd0r2T8MYohqvphUyDQ8lbAwzQ3Dlcrb1c9ykifGkhSIAk6A==
 
 vue-router@4:
   version "4.0.11"

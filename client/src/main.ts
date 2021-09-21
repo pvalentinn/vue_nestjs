@@ -4,7 +4,6 @@ import { HttpLink, split, ApolloClient, InMemoryCache } from '@apollo/client/cor
 import { WebSocketLink } from "@apollo/client/link/ws";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { DefaultApolloClient } from '@vue/apollo-composable';
-import { VueCookieNext } from 'vue-cookie-next'
 
 import App from './App.vue';
 import NotFound from './pages/NotFound.vue';
@@ -54,6 +53,5 @@ const apolloClient = new ApolloClient({
 
 createApp(App)
 .use(router)
-.use(VueCookieNext)
 .provide(DefaultApolloClient, apolloClient)
 .mount('#app');

@@ -17,20 +17,20 @@ body {
 
 
 <script setup lang="ts">
-import { useCookie } from 'vue-cookie-next';
 import { useRoute, useRouter } from 'vue-router'
 import { useMutation } from '@vue/apollo-composable';
 import { REMOVE_USER } from './graphql/user.gql';
+import Cookies from 'js-cookie'
 import jwt_decode from "jwt-decode";
 
-const { getCookie, removeCookie } = useCookie();
 const router = useRouter();
 let route = useRoute();
 
-let token = getCookie('token');
+let token = Cookies.get('token');
 let lobby: string | null | undefined;
 
 if (token) ({ lobby } = jwt_decode(token));
+console.log(lobby, token);
 
 if (lobby && route.params.id != lobby) {
 	router.push({ name: "Lobby", params: { id: lobby } })
@@ -38,8 +38,13 @@ if (lobby && route.params.id != lobby) {
 
 let handler = async (e: Event) => {
 	e.preventDefault();
+
+	let token = Cookies.get('token');
+	let lobby: string | null | undefined;
+	if (token) ({ lobby } = jwt_decode(token));
+
 	if (!lobby) {
-		removeCookie('token');
+		Cookies.remove('token');
 		useMutation(REMOVE_USER);
 	}
 }

@@ -1,13 +1,11 @@
 <template>
     <div v-if="loading">Loading...</div>
-    <div v-else-if="!loading && players">
+    <div class="container" v-else-if="!loading && players">
         <h1>Welcome to lobby {{ id }}</h1>
         <h2>The currents players are :</h2>
-        <ul id="example-1">
-            <li v-for="player in players" :key="player._id">{{ player.login }}</li>
-        </ul>
+        <LobbyBoard :players="players" />
     </div>
-    <ModalJoin v-if="show" :hide="hide" :id="id as string" />
+    <ModalJoin v-if="show" :hide="hide" :id="id" />
 </template>
 
 <script setup lang='ts'>
@@ -17,8 +15,9 @@ import { useRoute, useRouter } from "vue-router";
 
 import { GET_LOBBY, SUBSCRIPTION } from "../graphql/lobby.gql";
 import ModalJoin from "../components/ModalJoin.vue";
+import LobbyBoard from "../components/LobbyBoard.vue";
 
-let { params: { id } } = useRoute();
+let { params: { id } }: any = useRoute();
 let router = useRouter();
 let show = ref(false);
 
@@ -47,6 +46,16 @@ onResult(res => {
 });
 
 onError((e) => !show.value && router.push({ name: 'Home' }))
-
-
 </script>
+
+<style>
+.container {
+    height: 100vh;
+    padding: 25px;
+}
+
+h1 {
+    word-break: break-word;
+    text-align: center;
+}
+</style>

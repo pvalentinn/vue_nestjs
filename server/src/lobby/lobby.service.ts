@@ -50,7 +50,8 @@ export class LobbyService {
             await user.save();
 
             lobby.players.push(player_id);
-            return await lobby.save();
+            await lobby.save();
+            return { user, lobby }
         } catch(e) {
             return new UnauthorizedException(e.message);
         }
