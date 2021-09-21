@@ -8,6 +8,11 @@
 	padding: 0;
 	box-sizing: border-box;
 }
+
+body {
+	background: -webkit-linear-gradient(left, #6a11cb, #2575fc);
+	background: linear-gradient(left, #6a11cb, #2575fc);
+}
 </style>
 
 

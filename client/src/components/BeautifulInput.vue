@@ -1,19 +1,19 @@
 <template>
     <div class="input_div">
         <input :value="props.modelValue" @input="handle" type="text" required minlength="3" />
-        <span :class="{ active: props.modelValue }">{{ label }}</span>
+        <span :class="{ active: props.modelValue }">{{ props.label }}</span>
     </div>
 </template>
 
 <script setup lang='ts'>
-    import { defineEmits, ref } from 'vue'
-    let props = defineProps<{modelValue: string, label: string}>();
-    let emit = defineEmits(['update:modelValue']);
+import { defineEmits, ref } from 'vue'
+let props = defineProps<{ modelValue: string, label: string }>();
+let emit = defineEmits(['update:modelValue']);
 
-    let handle = ({ target }: { target: HTMLInputElement }) => {
-        console.log(props.modelValue)
-        emit("update:modelValue", target!.value);
-    }
+let handle = ({ target }: { target: HTMLInputElement }) => {
+    console.log(props.modelValue)
+    emit("update:modelValue", target!.value);
+}
 </script>
 
 <style scoped>
@@ -29,7 +29,6 @@
     position: relative;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
-    border-right: none;
 }
 .input_div > input {
     touch-action: manipulation;
@@ -66,5 +65,4 @@ span.active {
     font-size: 13px;
     color: #111;
 }
-
 </style>
