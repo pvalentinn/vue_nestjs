@@ -16,9 +16,3 @@ export const REMOVE_USER = gql`
         }
     }
 `
-
-export const UPDATETOKEN = gql`
-    subscription updateToken {
-        updateToken
-    }
-`

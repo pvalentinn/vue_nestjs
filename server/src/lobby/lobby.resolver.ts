@@ -94,9 +94,7 @@ export class LobbyResolver {
 	})
 	updateLobby(
 		@Args('id', { type: () => String }) id: Ms.Types.ObjectId,
-		@Context() { req }: ContextType 
 	) {
-		this.pubSub.publish('updateToken', { current_user: req.user.sub, lobby: id });
 		return this.pubSub.asyncIterator('updateLobby');
 	}
 

@@ -63,7 +63,6 @@ export class LobbyService {
             if(!user) return new UnauthorizedException("User not found!");
 
             let lobby = await this.lobbyModel.findById(user.lobby).exec();
-            console.log(lobby, user.lobby);
             if(!lobby) return new UnauthorizedException("Lobby not found!");
 
             user.lobby = null;

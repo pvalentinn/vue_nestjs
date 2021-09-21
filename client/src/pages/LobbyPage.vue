@@ -13,7 +13,7 @@ import { ref } from "vue";
 import { useQuery, useSubscription } from "@vue/apollo-composable";
 import { useRoute, useRouter } from "vue-router";
 
-import { GET_LOBBY, UPDATELOBBY } from "../graphql/lobby.gql";
+import { GET_LOBBY, UPDATE_LOBBY } from "../graphql/lobby.gql";
 import ModalJoin from "../components/ModalJoin.vue";
 import LobbyBoard from "../components/LobbyBoard.vue";
 
@@ -24,12 +24,12 @@ let show = ref(false);
 let players = ref<null | { _id: string, login: string }[]>(null);
 
 const { loading, onResult, onError } = useQuery(GET_LOBBY, { id });
-const { onResult: updatePlayers } = useSubscription(UPDATELOBBY, { id });
+const { onResult: updateLobby } = useSubscription(UPDATE_LOBBY, { id });
 
 let hide = () => show.value = false;
 
-updatePlayers(result => {
-    let updated_players = result.data.updatePlayers.players;
+updateLobby(result => {
+    let updated_players = result.data.updateLobby.players;
     if (updated_players) {
         console.log(updated_players);
         players.value = updated_players;

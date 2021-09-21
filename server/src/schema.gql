@@ -71,7 +71,6 @@ type Query {
 
 type Subscription {
   updateLobby(id: String!): Lobby!
-  updateToken: Boolean!
 }
 
 input UpdateUserInput {
@@ -83,4 +82,5 @@ type User {
   _id: String!
   lobby: Lobby
   login: String!
+  roles: [String!]!
 }

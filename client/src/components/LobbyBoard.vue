@@ -9,9 +9,9 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="player in players" :key="player._id">
+                <tr v-for="player in props.players" :key="player._id">
                     <td></td>
-                    <td>{{ player.login }}</td>
+                    <td>{{ player.login }} <CrownSVG class='crown' v-if="player.roles.find((e: string) => e == 'owner')"/> </td>
                     <td :class="player._id == payload.sub && 'select'">
                         <button v-if="player._id == payload.sub" class="button" href="#">Select</button>
                     </td>
@@ -39,11 +39,13 @@ import jwt_decode from 'jwt-decode';
 import Cookies from 'js-cookie'
 
 import LobbyLeaveSVG from './svg/LobbyLeaveSVG.vue';
+import CrownSVG from './svg/CrownSVG.vue';
 import { LEAVE_LOBBY } from '../graphql/lobby.gql';
 
 const { mutate: leaveLobby } = useMutation(LEAVE_LOBBY);
 
-let payload: { sub: string } = jwt_decode(Cookies.get('token')!);
+let payload: { sub: string, roles: string[] } = jwt_decode(Cookies.get('token')!);
+console.log(payload.roles);
 let router = useRouter();
 let props = defineProps<{ players: any[] }>();
 let n = 8 - props.players.length;
@@ -151,6 +153,11 @@ thead th {
     cursor: pointer;
     position: absolute;
     transform: translate(50%, 30%);
+}
+
+.crown {
+    float: right;
+    height: 30px;
 }
 
 @media (min-width: 460px) {

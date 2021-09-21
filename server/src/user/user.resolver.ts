@@ -71,25 +71,6 @@ export class UserResolver {
 		return this.userService.delete(req.user.sub);
 	}
 
-	@UseGuards(JwtAuthGuard)
-	@Subscription(() => Boolean)
-	async updateToken(
-		@Context() { req }: ContextType
-	) {	
-		try {
-			let user = await this!.userService.getById(req.user.sub);
-			if(user) {
-				let { access_token } = await this.authService.login(user);
-				req.res.setHeader('Set-Cookie', 'token=' + access_token + "; Path=/;");
-			}
-		} catch(e: any) {
-			console.log(e.message)
-			return false;
-		}
-
-		return this.pubSub.asyncIterator('updateToken');
-	}
-
 	@ResolveField()
 	async lobby(
 		@Parent() user: UserDocument

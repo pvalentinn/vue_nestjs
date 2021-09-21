@@ -14,7 +14,8 @@ export const GET_LOBBY = gql`
             capacity,
             players {
                 _id,
-                login
+                login,
+                roles
             }
         }
     }
@@ -26,7 +27,8 @@ export const JOIN_LOBBY = gql`
             _id,
             players {
                 _id,
-                login
+                login,
+                roles
             }
         }
     }
@@ -38,18 +40,20 @@ export const LEAVE_LOBBY = gql`
             _id,
             players {
                 _id,
-                login
+                login,
+                roles
             }
         }
     }
 `
 
-export const UPDATELOBBY = gql`
+export const UPDATE_LOBBY = gql`
     subscription updateLobby($id: String!) {
         updateLobby(id: $id) {
             players {
                 _id,
-                login
+                login,
+                roles
             }
         }
     }

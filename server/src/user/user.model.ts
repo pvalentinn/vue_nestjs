@@ -18,6 +18,7 @@ export class User {
     @Prop({ type: Ms.Types.ObjectId, ref: 'Lobby' })
     lobby: Ms.Types.ObjectId;
 
+    @Field(() => [String])
     @Prop({ default: [Role.User] })
     roles: Role[]
 }
