@@ -44,9 +44,9 @@ export const LEAVE_LOBBY = gql`
     }
 `
 
-export const SUBSCRIPTION = gql`
-    subscription updatePlayers($id: String!) {
-        updatePlayers(id: $id) {
+export const UPDATELOBBY = gql`
+    subscription updateLobby($id: String!) {
+        updateLobby(id: $id) {
             players {
                 _id,
                 login

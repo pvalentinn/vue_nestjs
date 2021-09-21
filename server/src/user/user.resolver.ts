@@ -1,5 +1,5 @@
-import { Resolver, Query, Mutation, Args, Parent, ResolveField } from '@nestjs/graphql';
-import { UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Resolver, Query, Mutation, Args, Parent, ResolveField, Subscription } from '@nestjs/graphql';
+import { Inject, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Schema as Ms } from 'mongoose';
 
 import { UserService } from './user.service';
@@ -10,11 +10,13 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Context, ContextType } from 'src/context.decorator';
 import { Role, Roles } from 'src/role/role.decorator';
 import { RoleGuard } from 'src/role/role.guard';
+import { PubSub } from 'graphql-subscriptions';
 
 
 @Resolver(() => User)
 export class UserResolver {
 	constructor(
+		@Inject('PUB_SUB') private pubSub: PubSub,
 		private readonly userService: UserService,
 		private authService: AuthService
 	) {}
@@ -67,6 +69,25 @@ export class UserResolver {
 	@Roles(Role.User, Role.Owner, Role.Admin)
 	removeUser(@Context() { req }: ContextType) {
 		return this.userService.delete(req.user.sub);
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Subscription(() => Boolean)
+	async updateToken(
+		@Context() { req }: ContextType
+	) {	
+		try {
+			let user = await this!.userService.getById(req.user.sub);
+			if(user) {
+				let { access_token } = await this.authService.login(user);
+				req.res.setHeader('Set-Cookie', 'token=' + access_token + "; Path=/;");
+			}
+		} catch(e: any) {
+			console.log(e.message)
+			return false;
+		}
+
+		return this.pubSub.asyncIterator('updateToken');
 	}
 
 	@ResolveField()

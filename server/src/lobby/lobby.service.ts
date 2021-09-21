@@ -17,7 +17,7 @@ export class LobbyService {
     ) {}
 
     async create(user_id: Ms.Types.ObjectId) {
-        const createdLobby = new this.lobbyModel({ capacity: 4, players: [user_id] });
+        const createdLobby = new this.lobbyModel({ capacity: 8, players: [user_id] });
 
         const user = await this.userModel.findById(user_id).exec();
         user.lobby = createdLobby._id;
@@ -68,8 +68,20 @@ export class LobbyService {
 
             user.lobby = null;
             user.save();
-            //TAKE CHARGE OF OWNER ROLES
+
             lobby.players = lobby.players.filter((e) => e != user.id);
+            if(user.roles.find(e => e == Role.Owner)) {
+                user.roles = user.roles.filter(e => e!= Role.Owner);
+
+                //IF NO PLAYERS[0] DESTROY LOBBY;
+
+                let newOwner = await this.userModel.findById(lobby.players[0]).exec();
+                if(!newOwner) return new UnauthorizedException("Could not proceed to add a new owner!");
+
+                newOwner.roles = [...newOwner.roles, Role.Owner];
+                await newOwner.save();
+            }
+            //TAKE CHARGE OF OWNER ROLES
             return await lobby.save();
 
         } catch(e) {

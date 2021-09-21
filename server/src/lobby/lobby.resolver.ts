@@ -53,13 +53,6 @@ export class LobbyResolver {
 	@Mutation(() => Lobby)
 	@UseGuards(JwtAuthGuard, RoleGuard)
 	@Roles(Role.Owner, Role.Admin)
-	updateLobby(@Args('updateLobbyInput') updateLobbyInput: UpdateLobbyInput) {
-		return this.lobbyService.update(updateLobbyInput);
-	}
-
-	@Mutation(() => Lobby)
-	@UseGuards(JwtAuthGuard, RoleGuard)
-	@Roles(Role.Owner, Role.Admin)
 	removeLobby(@Args('id', { type: () => String }) id: Ms.Types.ObjectId) {
 		return this.lobbyService.delete(id);
 	}
@@ -75,7 +68,7 @@ export class LobbyResolver {
 			let { access_token } = await this.authService.login(user);
 			
 			req.res.setHeader('Set-Cookie', 'token=' + access_token + "; Path=/;");
-			await this.pubSub.publish('updatePlayers', lobby);
+			await this.pubSub.publish('updateLobby', lobby);
 
 			return lobby;
 		} catch(e: any) {
@@ -89,7 +82,7 @@ export class LobbyResolver {
 		@Context() { req }: ContextType 
 	) {
 		let lobby = await this.lobbyService.removePlayer(req.user.sub);
-		this.pubSub.publish('updatePlayers', lobby);
+		this.pubSub.publish('updateLobby', lobby);
 	
 		return lobby;
 	}
@@ -99,8 +92,12 @@ export class LobbyResolver {
 		filter: (payload, variables) => payload._id == variables.id,
 		resolve: (payload) => payload
 	})
-	updatePlayers(@Args('id', { type: () => String }) id: Ms.Types.ObjectId) {
-		return this.pubSub.asyncIterator('updatePlayers');
+	updateLobby(
+		@Args('id', { type: () => String }) id: Ms.Types.ObjectId,
+		@Context() { req }: ContextType 
+	) {
+		this.pubSub.publish('updateToken', { current_user: req.user.sub, lobby: id });
+		return this.pubSub.asyncIterator('updateLobby');
 	}
 
 	@ResolveField()

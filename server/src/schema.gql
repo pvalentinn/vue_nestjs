@@ -57,7 +57,6 @@ type Mutation {
   leaveLobby: Lobby!
   removeLobby(id: String!): Lobby!
   removeUser: User!
-  updateLobby(updateLobbyInput: UpdateLobbyInput!): Lobby!
   updateUser(updateUserInput: UpdateUserInput!): User!
 }
 
@@ -71,13 +70,8 @@ type Query {
 }
 
 type Subscription {
-  updatePlayers(id: String!): Lobby!
-}
-
-input UpdateLobbyInput {
-  _id: String
-  capacity: Float
-  players: [String!]
+  updateLobby(id: String!): Lobby!
+  updateToken: Boolean!
 }
 
 input UpdateUserInput {
