@@ -9,14 +9,14 @@ export class AuthService {
         private jwtService: JwtService
     ){}
 
-    login(user: User) {
+    async login(user: User) {
         const payload = { login: user.login, sub: user._id, roles: user.roles, lobby: user.lobby };
         return {
           access_token: this.jwtService.sign(payload),
         };
     }
 
-    decode(token: string) {
+    async decode(token: string) {
         try {
             return this.jwtService.decode(token) as PayloadType;
         } catch(e) {

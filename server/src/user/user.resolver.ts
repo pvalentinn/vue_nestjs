@@ -27,7 +27,7 @@ export class UserResolver {
 		@Context() { req }: ContextType
 		) {
 		let user = await this.userService.create(createUserInput);
-		let { access_token } = this.authService.login(user);
+		let { access_token } = await this.authService.login(user);
 		if(access_token) {
 			req.res.setHeader('Set-Cookie', 'token=' + access_token + "; Path=/;");
 			
@@ -77,13 +77,13 @@ export class UserResolver {
 		@Args('token', { type: () => String }) token: string,
 		@Context() { req }: ContextType
 	) {
-		let payload = this.authService.decode(token);
+		let payload = await this.authService.decode(token);
 		if(!payload)  return new UnauthorizedException('Decoding the token failed.');
 
 		let user = await this.userService.getById(payload.sub);
 		if(!user) return new UnauthorizedException('Couldnt find user');
 
-		let { access_token } = this.authService.login(user);
+		let { access_token } = await this.authService.login(user);
 		req.res.setHeader('Set-Cookie', 'token=' + access_token + "; Path=/;");
 
 		return true;

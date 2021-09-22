@@ -44,7 +44,11 @@ import { LEAVE_LOBBY } from '../graphql/lobby.gql';
 
 const { mutate: leaveLobby } = useMutation(LEAVE_LOBBY);
 
-let payload: { sub: string, roles: string[] } = jwt_decode(Cookies.get('token')!);
+let payload: any;
+
+let token = Cookies.get('token');
+if(token) payload = jwt_decode(token)
+
 console.log(payload.roles);
 let router = useRouter();
 let props = defineProps<{ players: any[] }>();

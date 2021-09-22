@@ -1,6 +1,6 @@
 import { Resolver, Query, Mutation, Args, ResolveField, Parent, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
-import { Inject, UseGuards } from '@nestjs/common';
+import { Inject, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Schema as Ms } from 'mongoose';
 import { Context, ContextType } from 'src/context.decorator';
 
@@ -30,7 +30,7 @@ export class LobbyResolver {
 
 		let { access_token } = await this.authService.login(user);
 		if(access_token) {
-			req.res.setHeader('Set-Cookie', 'token=' + access_token + "; Path=/;");
+			req.res.setHeader('Set-Cookie', 'token=' + access_token + "; Path=/; Host");
 		}
 
 		return lobby
@@ -44,10 +44,13 @@ export class LobbyResolver {
 	}
 
 	@Query(() => Lobby, { name: 'lobby' })
-	@UseGuards(JwtAuthGuard, RoleGuard)
-	@Roles(Role.User, Role.Admin)
-	findOne(@Args('id', { type: () => String }) id: Ms.Types.ObjectId ) {
-		return this.lobbyService.getById(id);
+	findOne(
+		@Args('id', { type: () => String }) id: Ms.Types.ObjectId 
+	) {
+		let lobby = this.lobbyService.getById(id);
+		if(!lobby) return new UnauthorizedException('Lobby not found');
+
+		return lobby;
 	}
 
 	@Mutation(() => Lobby)

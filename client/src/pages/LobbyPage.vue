@@ -1,11 +1,11 @@
 <template>
     <div v-if="loading">Loading...</div>
-    <div class="container" v-else-if="!loading && players">
+    <ModalJoin v-if="show" :hide="hide" :id="id" />
+    <div class="container" v-else-if="!loading && players && !show">
         <h1>Welcome to lobby {{ id }}</h1>
         <h2>The currents players are :</h2>
         <LobbyBoard :players="players" />
     </div>
-    <ModalJoin v-if="show" :hide="hide" :id="id" />
 </template>
 
 <script setup lang='ts'>
@@ -41,6 +41,8 @@ updateLobby(result => {
 })
 
 onResult(res => {
+    if(!Cookies.get('token')) show.value = true;
+
     if (res.data == undefined) {
         if (res.error?.graphQLErrors[0].extensions?.code == "UNAUTHENTICATED") show.value = true;
         else router.push({ name: 'NotFound' });
@@ -49,7 +51,12 @@ onResult(res => {
     }
 });
 
-onError((e) => !show.value && router.push({ name: 'Home' }))
+onError((e) => {
+    if(e.message == "Cannot return null for non-nullable field Query.lobby.") router.push({ name: 'Home' });
+    else {
+        show.value = true;
+    }
+})
 </script>
 
 <style>

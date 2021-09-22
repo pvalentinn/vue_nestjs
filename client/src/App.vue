@@ -30,7 +30,7 @@ let token = Cookies.get('token');
 let lobby: string | null | undefined;
 
 if (token) ({ lobby } = jwt_decode(token));
-console.log(lobby, token);
+// console.log(lobby, token);
 
 if (lobby && route.params.id != lobby) {
 	router.push({ name: "Lobby", params: { id: lobby } })
