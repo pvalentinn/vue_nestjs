@@ -57,6 +57,7 @@ type Mutation {
   leaveLobby: Lobby!
   removeLobby(id: String!): Lobby!
   removeUser: User!
+  updateToken(token: String!): Boolean!
   updateUser(updateUserInput: UpdateUserInput!): User!
 }
 

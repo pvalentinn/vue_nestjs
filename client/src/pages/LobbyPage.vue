@@ -10,9 +10,11 @@
 
 <script setup lang='ts'>
 import { ref } from "vue";
-import { useQuery, useSubscription } from "@vue/apollo-composable";
+import Cookies from "js-cookie";
+import { useMutation, useQuery, useSubscription } from "@vue/apollo-composable";
 import { useRoute, useRouter } from "vue-router";
 
+import { UPDATE_TOKEN } from "../graphql/user.gql";
 import { GET_LOBBY, UPDATE_LOBBY } from "../graphql/lobby.gql";
 import ModalJoin from "../components/ModalJoin.vue";
 import LobbyBoard from "../components/LobbyBoard.vue";
@@ -25,10 +27,12 @@ let players = ref<null | { _id: string, login: string }[]>(null);
 
 const { loading, onResult, onError } = useQuery(GET_LOBBY, { id });
 const { onResult: updateLobby } = useSubscription(UPDATE_LOBBY, { id });
+const { mutate: updateToken } = useMutation(UPDATE_TOKEN);
 
 let hide = () => show.value = false;
 
 updateLobby(result => {
+    updateToken({ token: Cookies.get('token') });
     let updated_players = result.data.updateLobby.players;
     if (updated_players) {
         console.log(updated_players);

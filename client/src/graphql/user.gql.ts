@@ -16,3 +16,9 @@ export const REMOVE_USER = gql`
         }
     }
 `
+
+export const UPDATE_TOKEN = gql`
+    mutation updateToken($token: String!){
+        updateToken(token: $token)
+    }
+`

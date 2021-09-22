@@ -66,7 +66,7 @@ export class LobbyService {
             if(!lobby) return new UnauthorizedException("Lobby not found!");
 
             user.lobby = null;
-            user.save();
+            await user.save();
 
             lobby.players = lobby.players.filter((e) => e != user.id);
             if(user.roles.find(e => e == Role.Owner)) {
