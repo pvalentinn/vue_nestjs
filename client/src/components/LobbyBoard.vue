@@ -91,7 +91,7 @@ let kickLobbyHandler = async (kicked_id: string) => {
 
 <style scoped>
 main {
-    max-width: 600px;
+    width: 600px;
     margin-left: 25px;
 }
 

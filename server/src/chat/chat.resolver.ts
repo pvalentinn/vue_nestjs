@@ -1,5 +1,5 @@
 import { Inject, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Resolver, Query, ResolveField, Parent } from '@nestjs/graphql';
+import { Args, Mutation, Resolver, Query, ResolveField, Parent, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 import { Schema as Ms } from 'mongoose';
 
@@ -11,13 +11,13 @@ import { Lobby } from 'src/lobby/lobby.model';
 import { AddMessageInput } from './chat.inputs';
 
 @Resolver(() => Chat)
-@UseGuards(JwtAuthGuard, RoleGuard)
 export class ChatResolver {
     constructor(
 		@Inject('PUB_SUB') private pubSub: PubSub,
 		private readonly chatService: ChatService,
 	) {}
 
+    @UseGuards(JwtAuthGuard, RoleGuard)
     @Mutation(() => Chat)
     addMessage(
         @Args('AddMessageInput', { type: () => AddMessageInput }) payload: AddMessageInput
@@ -25,11 +25,22 @@ export class ChatResolver {
         return this.chatService.addMessage(payload);
     }
 
+    @UseGuards(JwtAuthGuard, RoleGuard)
     @Query(() => Chat)
     chat(
         @Args('id', { type: () => String }) id: Ms.Types.ObjectId
     ){
         return this.chatService.findOne(id);
+    }
+
+    @Subscription(() => Chat, {
+        filter: (payload, variables) =>  payload.lobby = variables.lobby_id,
+        resolve: (payload) => payload
+    })
+    updateChat(
+        @Args('lobby_id', { type: () => String }) lobby_id: Ms.Types.ObjectId
+    ) {
+        return this.pubSub.asyncIterator('updateChat')
     }
 
     @ResolveField()

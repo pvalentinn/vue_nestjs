@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, UseGuards } from '@nestjs/common';
+import { Injectable, BadRequestException, UseGuards, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Schema as Ms } from 'mongoose';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -35,16 +35,13 @@ export class ChatService {
         try {
             chat = await this.chatModel.findById(payload.id).exec();
             user = await this.userModel.findById(payload.user_id).exec();
-        } catch (e) {
             if(!chat) return new BadRequestException("Couldn't find the chat");
             if(!user) return new BadRequestException("Couldn't find the user");
+        } catch (e) {
+            return new UnauthorizedException(e.message)
         }
 
-        const message = new Message();
-        message.id = chat.messages.length;
-        message.text = payload.text;
-        message.user_id = payload.user_id;
-        message.created_at = new Date();
+        const message = new Message({ id: chat.messages.length, user_id: payload.user_id, text: payload.text });
 
         chat.messages = [...chat.messages, message];
         return await chat.save();

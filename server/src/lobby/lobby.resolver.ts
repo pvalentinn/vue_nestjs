@@ -12,6 +12,8 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RoleGuard } from 'src/role/role.guard';
 import { Role, Roles } from 'src/role/role.decorator';
 import { AuthService } from 'src/auth/auth.service';
+import { ChatService } from 'src/chat/chat.service';
+import { ChatDocument } from 'src/chat/chat.model';
 
 
 @Resolver(() => Lobby)
@@ -19,6 +21,7 @@ export class LobbyResolver {
 	constructor(
 		@Inject('PUB_SUB') private pubSub: PubSub,
 		private readonly lobbyService: LobbyService,
+		private readonly chatService: ChatService,
 		private readonly authService: AuthService,
 	) {}
 
@@ -26,7 +29,7 @@ export class LobbyResolver {
 	@UseGuards(JwtAuthGuard, RoleGuard)
 	@Roles(Role.User, Role.Admin)
 	async createLobby(@Context(){ req }: ContextType) {
-		let { user, lobby } = await this.lobbyService.create(req.user.sub);
+		let { user, lobby, chat } = await this.lobbyService.create(req.user.sub);
 
 		let { access_token } = await this.authService.login(user);
 		if(access_token) {
@@ -34,6 +37,7 @@ export class LobbyResolver {
 		}
 
 		await this.pubSub.publish('updateLobby', lobby);
+		await this.pubSub.publish('updateChat', chat);
 		return lobby
 	}
 
@@ -73,6 +77,7 @@ export class LobbyResolver {
 			
 			req.res.setHeader('Set-Cookie', 'token=' + access_token + "; Path=/;");
 			await this.pubSub.publish('updateLobby', lobby);
+			await this.pubSub.publish('updateChat', await this.chatService.findOne(lobby.chat));
 
 			return lobby;
 		} catch(e: any) {
@@ -85,11 +90,16 @@ export class LobbyResolver {
 	async leaveLobby(
 		@Context() { req }: ContextType 
 	) {
-		let lobby = await this.lobbyService.removePlayer(req.user.sub);
-		if(!lobby) return null
-		this.pubSub.publish('updateLobby', lobby);
-	
-		return lobby;
+		try {
+			let { lobby, chat }: any = await this.lobbyService.removePlayer(req.user.sub);
+			await this.pubSub.publish('updateLobby', lobby);
+			await this.pubSub.publish('updateChat', chat);
+		
+			return lobby;
+
+		} catch (e) {
+			return null
+		}
 	}
 
 	@UseGuards(JwtAuthGuard, RoleGuard)
@@ -98,11 +108,15 @@ export class LobbyResolver {
 	async kickFromLobby(
 		@Args('id', { type: () => String }) id: Ms.Types.ObjectId
 	) {
-		let lobby = await this.lobbyService.removePlayer(id);
-		if(!lobby) return null
-		this.pubSub.publish('updateLobby', lobby);
-	
-		return lobby;
+		let { lobby, chat }: any = await this.lobbyService.removePlayer(id);
+		if(lobby) {
+			await this.pubSub.publish('updateLobby', lobby);
+			await this.pubSub.publish('updateChat', chat);
+		
+			return lobby;
+		} else {
+			return null
+		}
 	}
 
 	@Subscription(() => Lobby,

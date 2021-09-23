@@ -7,6 +7,7 @@ import { User, UserDocument } from '../user/user.model';
 import { ListLobbyInput, UpdateLobbyInput, AddPlayerLobbyInput } from './lobby.inputs';
 import { Role } from 'src/role/role.decorator';
 import { Chat, ChatDocument } from 'src/chat/chat.model';
+import { Message } from 'src/chat/chat.message.type';
 
 @Injectable()
 export class LobbyService {
@@ -25,9 +26,13 @@ export class LobbyService {
         await user.save();
 
         const chat = await this.chatModel.create({ lobby: createdLobby._id });
+        chat.messages[0] = new Message({ id: 0, user_id: "server", text: "New lobby chat." });
+        chat.messages[1] = new Message({ id: 1, user_id: "server", text: `${user.login} joined the chat !`});
+        await chat.save();
+
         createdLobby.chat = chat._id;
 
-        return { user, lobby: await createdLobby.save() }
+        return { user, lobby: await createdLobby.save(), chat }
     }
 
     async addPlayer(payload: AddPlayerLobbyInput) {
@@ -51,7 +56,13 @@ export class LobbyService {
 
             lobby.players.push(player_id);
             await lobby.save();
-            return { user, lobby }
+
+            let chat = await this.chatModel.findById(lobby.chat).exec();
+            chat.messages = [...chat.messages, new Message({ id: chat.messages.length, user_id: "server", text: `${user.login} has joined the lobby !` })];
+            await chat.save();
+
+
+            return { user, lobby, chat }
         } catch(e) {
             return new UnauthorizedException(e.message);
         }
@@ -84,7 +95,12 @@ export class LobbyService {
                 newOwner.roles = [...newOwner.roles, Role.Owner];
                 await newOwner.save();
             }
-            return await lobby.save();
+
+            let chat = await this.chatModel.findById(lobby.chat).exec();
+            chat.messages = [...chat.messages, new Message({ id: chat.messages.length, user_id: "server", text: `${user.login} left the lobby !` })];
+            await chat.save();
+
+            return { lobby: await lobby.save(), chat };
 
         } catch(e) {
             return new UnauthorizedException(e.message);

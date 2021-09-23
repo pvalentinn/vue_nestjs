@@ -1,0 +1,27 @@
+import gql from "graphql-tag";
+
+export const GET_CHAT = gql`
+    query getChat($id: String!){
+        chat(id: $id){
+            messages {
+                id,
+                user_id,
+                text,
+                created_at
+            }
+        }
+    }
+`
+
+export const UPDATE_CHAT = gql`
+    subscription updateChat($lobby_id: String!){
+        updateChat(lobby_id: $lobby_id) {
+            messages {
+                id,
+                user_id,
+                text,
+                created_at
+            }
+        }
+    }
+` 

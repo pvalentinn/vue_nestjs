@@ -1,9 +1,12 @@
 <template>
     <ModalJoin v-if="show" :hide="hide" :id="id" />
     <div class="container" v-else-if="!loading && players && !show">
-        <h1>Welcome to lobby {{ id }}</h1>
-        <h2>The currents players are :</h2>
+        <div class="container_header">
+            <h1>Welcome to lobby {{ id }}</h1>
+            <h2>The currents players are :</h2>
+        </div>
         <LobbyBoard :players="players" :me="me" />
+        <LobbyChat :me="me" :chat="chat" />
     </div>
 </template>
 
@@ -18,6 +21,7 @@ import { UPDATE_TOKEN } from "../graphql/user.gql";
 import { GET_LOBBY, UPDATE_LOBBY } from "../graphql/lobby.gql";
 import ModalJoin from "../components/ModalJoin.vue";
 import LobbyBoard from "../components/LobbyBoard.vue";
+import LobbyChat from "../components/LobbyChat.vue";
 
 let { params: { id } }: any = useRoute();
 let router = useRouter();
@@ -25,6 +29,7 @@ let show = ref(false);
 
 let players = ref<null | { _id: string, login: string }[]>(null);
 let me = ref<null | { sub: string, lobby: string, roles: string[] }>(null);
+let chat = ref('');
 
 if (Cookies.get('token')) me.value = jwt_decode(Cookies.get('token')!);
 
@@ -54,6 +59,7 @@ onResult(res => {
         else router.push({ name: 'NotFound' });
     } else {
         players.value = res.data.lobby.players;
+        chat.value = res.data.lobby.chat._id;
     }
 });
 
@@ -69,6 +75,14 @@ onError((e) => {
 .container {
     height: 100vh;
     padding: 25px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    gap: 40px;
+}
+
+.container_header {
+    width: 100%;
 }
 
 h1 {

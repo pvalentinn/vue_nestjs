@@ -72,6 +72,7 @@ type Query {
 }
 
 type Subscription {
+  updateChat(lobby_id: String!): Chat!
   updateLobby(id: String!): Lobby!
 }
 
