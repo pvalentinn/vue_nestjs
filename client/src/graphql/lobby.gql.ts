@@ -47,6 +47,14 @@ export const LEAVE_LOBBY = gql`
     }
 `
 
+export const KICK_LOBBY = gql`
+    mutation kickLobby($id: String!) {
+        kick(id: $id){
+            _id
+        }
+    }
+`
+
 export const UPDATE_LOBBY = gql`
     subscription updateLobby($id: String!) {
         updateLobby(id: $id) {

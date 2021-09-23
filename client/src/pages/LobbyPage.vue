@@ -1,5 +1,4 @@
 <template>
-    <div v-if="loading">Loading...</div>
     <ModalJoin v-if="show" :hide="hide" :id="id" />
     <div class="container" v-else-if="!loading && players && !show">
         <h1>Welcome to lobby {{ id }}</h1>
@@ -11,6 +10,7 @@
 <script setup lang='ts'>
 import { ref } from "vue";
 import Cookies from "js-cookie";
+import jwt_decode from 'jwt-decode';
 import { useMutation, useQuery, useSubscription } from "@vue/apollo-composable";
 import { useRoute, useRouter } from "vue-router";
 
@@ -24,6 +24,7 @@ let router = useRouter();
 let show = ref(false);
 
 let players = ref<null | { _id: string, login: string }[]>(null);
+let me = ref<null | { sub: string, lobby: string }>(null);
 
 const { loading, onResult, onError } = useQuery(GET_LOBBY, { id });
 const { onResult: updateLobby } = useSubscription(UPDATE_LOBBY, { id });
@@ -31,8 +32,11 @@ const { mutate: updateToken } = useMutation(UPDATE_TOKEN);
 
 let hide = () => show.value = false;
 
-updateLobby(result => {
-    updateToken({ token: Cookies.get('token') });
+updateLobby(async result => {
+    await updateToken({ token: Cookies.get('token') });
+    me.value = jwt_decode(Cookies.get('token')!);
+    if (!me.value?.lobby) router.push({ name: 'Home' });
+
     let updated_players = result.data.updateLobby.players;
     if (updated_players) {
         console.log(updated_players);
@@ -41,7 +45,7 @@ updateLobby(result => {
 })
 
 onResult(res => {
-    if(!Cookies.get('token')) show.value = true;
+    if (!Cookies.get('token')) show.value = true;
 
     if (res.data == undefined) {
         if (res.error?.graphQLErrors[0].extensions?.code == "UNAUTHENTICATED") show.value = true;
@@ -52,7 +56,7 @@ onResult(res => {
 });
 
 onError((e) => {
-    if(e.message == "Cannot return null for non-nullable field Query.lobby.") router.push({ name: 'Home' });
+    if (e.message == "Cannot return null for non-nullable field Query.lobby.") router.push({ name: 'Home' });
     else {
         show.value = true;
     }

@@ -11,7 +11,17 @@
             <tbody>
                 <tr v-for="player in props.players" :key="player._id">
                     <td></td>
-                    <td>{{ player.login }} <CrownSVG class='crown' v-if="player.roles.find((e: string) => e == 'owner')"/> </td>
+                    <td>
+                        {{ player.login }}
+                        <CrownSVG
+                            class="crown"
+                            v-if="player.roles.find((e: string) => e == 'owner')"
+                        />
+                        <!-- <DeleteCrossSVG
+                            class="crown"
+                            v-if="(player._id != payload.sub) && payload.roles.find((e: string) => e == 'owner')"
+                        />-->
+                    </td>
                     <td :class="player._id == payload.sub && 'select'">
                         <button v-if="player._id == payload.sub" class="button" href="#">Select</button>
                     </td>
@@ -19,6 +29,11 @@
                         class="quit"
                         v-if="player._id == payload.sub"
                         @click="leaveLobbyHandler"
+                    />
+                    <KickOffSVG
+                        class="quit kick_off"
+                        v-if="(player._id != payload.sub) && payload.roles.find((e: string) => e == 'owner')"
+                        @click="() => kickLobbyHandler(player._id)"
                     />
                 </tr>
                 <tr v-for="i in n">
@@ -40,19 +55,24 @@ import Cookies from 'js-cookie'
 
 import LobbyLeaveSVG from './svg/LobbyLeaveSVG.vue';
 import CrownSVG from './svg/CrownSVG.vue';
-import { LEAVE_LOBBY } from '../graphql/lobby.gql';
+import { KICK_LOBBY, LEAVE_LOBBY } from '../graphql/lobby.gql';
+import KickOffSVG from './svg/KickOffSVG.vue';
+import DeleteCrossSVG from './svg/DeleteCrossSVG.vue';
 
 const { mutate: leaveLobby } = useMutation(LEAVE_LOBBY);
+const { mutate: kickLobby } = useMutation(KICK_LOBBY);
 
 let payload: any;
 
-let token = Cookies.get('token');
-if(token) payload = jwt_decode(token)
-
-console.log(payload.roles);
 let router = useRouter();
 let props = defineProps<{ players: any[] }>();
 let n = 8 - props.players.length;
+
+let token = Cookies.get('token');
+if (token) payload = jwt_decode(token);
+
+console.log(payload.roles, payload.lobby);
+
 
 let leaveLobbyHandler = async () => {
     try {
@@ -64,25 +84,20 @@ let leaveLobbyHandler = async () => {
     }
 }
 
+let kickLobbyHandler = async (kicked_id: string) => {
+    try {
+        await kickLobby({ id: kicked_id });
+    } catch (e: any) {
+        console.log(e.message)
+    }
+}
+
 </script>
 
 <style scoped>
 main {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-table,
-tr,
-td,
-tbody,
-tfoot {
-    display: block;
-    position: relative;
-}
-
-thead {
-    display: none;
+    max-width: 600px;
+    margin-left: 25px;
 }
 
 tr {
@@ -95,8 +110,11 @@ tr:nth-child(2n + 2) {
 }
 
 td {
+    font-size: 1.2rem;
+    color: white;
     padding: 10px 10px 0;
-    text-align: center;
+    position: relative;
+    border: 1px solid #28333f;
 }
 td:before {
     color: #7a91aa;
@@ -107,7 +125,7 @@ td:before {
 }
 
 table {
-    width: calc(100% - 50px);
+    width: calc(100% - 30px);
     background-color: #2c3845;
 }
 
@@ -148,10 +166,12 @@ thead th {
     border-bottom: 1px solid #28333f;
     text-align: center;
 }
-.select:before {
-    display: none;
+.crown {
+    position: absolute;
+    transform: translateY(-25%);
+    right: 5px;
+    height: 30px;
 }
-
 .quit {
     height: 40px;
     cursor: pointer;
@@ -159,90 +179,39 @@ thead th {
     transform: translate(50%, 30%);
 }
 
-.crown {
-    float: right;
-    height: 30px;
-}
-
-@media (min-width: 460px) {
-    td {
-        text-align: left;
-    }
-    td:before {
-        display: inline-block;
-        text-align: right;
-        width: 140px;
-    }
-
-    .select {
-        padding-left: 160px;
-    }
-}
-@media (min-width: 720px) {
-    table {
-        display: table;
-    }
-
-    tr {
-        display: table-row;
-    }
-
-    td,
-    th {
-        display: table-cell;
-    }
-
-    tbody {
-        display: table-row-group;
-    }
-
-    thead {
-        display: table-header-group;
-    }
-
-    td {
-        border: 1px solid #28333f;
-    }
-    td:before {
-        display: none;
-    }
-
-    td,
-    th {
-        padding: 10px;
-    }
-
-    .select {
-        padding: 10px;
-    }
+.kick_off {
+    transform: translate(65%, 30%);
 }
 
 @media (max-width: 720px) {
-    tr {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        padding: 0;
+    .container {
+        padding: 5px;
     }
 
-    tr > td {
-        padding: unset;
-        width: 100%;
-        height: 50px;
-        text-align: center;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+    main {
+        margin: unset;
+    }
+
+    table {
+        width: 95%;
+    }
+
+    td,
+    th {
+        padding: 8px;
+    }
+    .ready {
+        width: 50px;
     }
 
     .select {
+        width: 60px;
         padding: unset;
         border: unset;
     }
 
-    .ready {
-        width: unset;
+    .button {
+        padding: 6px;
     }
 
     .action {
@@ -251,8 +220,39 @@ thead th {
 
     .quit {
         transform: unset;
-        transform: translateY(0%);
-        right: -50px;
+        margin-top: 10px;
+        right: 15px;
+    }
+
+    .kick_off {
+        right: 10px;
+    }
+}
+
+@media (max-width: 550px) {
+    table {
+        width: 90%;
+    }
+
+    td,
+    th {
+        padding: 6px;
+    }
+}
+
+@media (max-width: 460px) {
+    td {
+        text-align: left;
+    }
+
+    td:before {
+        display: inline-block;
+        text-align: right;
+        width: 140px;
+    }
+
+    .button {
+        padding: 3px;
     }
 }
 </style>

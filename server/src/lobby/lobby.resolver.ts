@@ -33,6 +33,7 @@ export class LobbyResolver {
 			req.res.setHeader('Set-Cookie', 'token=' + access_token + "; Path=/; Host");
 		}
 
+		await this.pubSub.publish('updateLobby', lobby);
 		return lobby
 	}
 
@@ -85,6 +86,18 @@ export class LobbyResolver {
 		@Context() { req }: ContextType 
 	) {
 		let lobby = await this.lobbyService.removePlayer(req.user.sub);
+		this.pubSub.publish('updateLobby', lobby);
+	
+		return lobby;
+	}
+
+	@UseGuards(JwtAuthGuard, RoleGuard)
+	@Roles(Role.Owner, Role.Admin)
+	@Mutation(() => Lobby, { name: 'kick' })
+	async kickFromLobby(
+		@Args('id', { type: () => String }) id: Ms.Types.ObjectId
+	) {
+		let lobby = await this.lobbyService.removePlayer(id);
 		this.pubSub.publish('updateLobby', lobby);
 	
 		return lobby;
