@@ -54,8 +54,8 @@ type Mutation {
   createLobby: Lobby!
   createUser(createUserInput: CreateUserInput!): User!
   joinLobby(lobby_id: String!): Lobby!
-  kick(id: String!): Lobby!
-  leaveLobby: Lobby!
+  kick(id: String!): Lobby
+  leaveLobby: Lobby
   removeLobby(id: String!): Lobby!
   removeUser: User!
   updateToken(token: String!): Boolean!

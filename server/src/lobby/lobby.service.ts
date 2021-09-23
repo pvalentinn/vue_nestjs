@@ -73,6 +73,10 @@ export class LobbyService {
                 user.roles = user.roles.filter(e => e!= Role.Owner);
 
                 //IF NO PLAYERS[0] DESTROY LOBBY;
+                if(!lobby.players.length) {
+                    await lobby.remove();
+                    return null;
+                };
 
                 let newOwner = await this.userModel.findById(lobby.players[0]).exec();
                 if(!newOwner) return new UnauthorizedException("Could not proceed to add a new owner!");
@@ -80,7 +84,6 @@ export class LobbyService {
                 newOwner.roles = [...newOwner.roles, Role.Owner];
                 await newOwner.save();
             }
-            //TAKE CHARGE OF OWNER ROLES
             return await lobby.save();
 
         } catch(e) {

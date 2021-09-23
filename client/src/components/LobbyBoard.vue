@@ -22,17 +22,17 @@
                             v-if="(player._id != payload.sub) && payload.roles.find((e: string) => e == 'owner')"
                         />-->
                     </td>
-                    <td :class="player._id == payload.sub && 'select'">
-                        <button v-if="player._id == payload.sub" class="button" href="#">Select</button>
+                    <td :class="player._id == props.me?.sub && 'select'">
+                        <button v-if="player._id == props.me?.sub" class="button" href="#">Select</button>
                     </td>
                     <LobbyLeaveSVG
                         class="quit"
-                        v-if="player._id == payload.sub"
+                        v-if="player._id == props.me?.sub"
                         @click="leaveLobbyHandler"
                     />
                     <KickOffSVG
                         class="quit kick_off"
-                        v-if="(player._id != payload.sub) && payload.roles.find((e: string) => e == 'owner')"
+                        v-if="(player._id != props.me?.sub) && props.me?.roles.find((e: string) => e == 'owner')"
                         @click="() => kickLobbyHandler(player._id)"
                     />
                 </tr>
@@ -50,7 +50,6 @@
 import { defineProps } from 'vue';
 import { useMutation } from '@vue/apollo-composable';
 import { useRouter } from 'vue-router';
-import jwt_decode from 'jwt-decode';
 import Cookies from 'js-cookie'
 
 import LobbyLeaveSVG from './svg/LobbyLeaveSVG.vue';
@@ -65,14 +64,10 @@ const { mutate: kickLobby } = useMutation(KICK_LOBBY);
 let payload: any;
 
 let router = useRouter();
-let props = defineProps<{ players: any[] }>();
+let props = defineProps<{ players: any[], me: { sub: string, lobby: string, roles: string[] } | null }>();
 let n = 8 - props.players.length;
 
-let token = Cookies.get('token');
-if (token) payload = jwt_decode(token);
-
-console.log(payload.roles, payload.lobby);
-
+console.log(props.me?.roles, props.me?.lobby);
 
 let leaveLobbyHandler = async () => {
     try {

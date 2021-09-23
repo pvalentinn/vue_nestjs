@@ -3,7 +3,7 @@
     <div class="container" v-else-if="!loading && players && !show">
         <h1>Welcome to lobby {{ id }}</h1>
         <h2>The currents players are :</h2>
-        <LobbyBoard :players="players" />
+        <LobbyBoard :players="players" :me="me" />
     </div>
 </template>
 
@@ -24,7 +24,9 @@ let router = useRouter();
 let show = ref(false);
 
 let players = ref<null | { _id: string, login: string }[]>(null);
-let me = ref<null | { sub: string, lobby: string }>(null);
+let me = ref<null | { sub: string, lobby: string, roles: string[] }>(null);
+
+if (Cookies.get('token')) me.value = jwt_decode(Cookies.get('token')!);
 
 const { loading, onResult, onError } = useQuery(GET_LOBBY, { id });
 const { onResult: updateLobby } = useSubscription(UPDATE_LOBBY, { id });

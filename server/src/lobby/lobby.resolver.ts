@@ -6,7 +6,7 @@ import { Context, ContextType } from 'src/context.decorator';
 
 import { LobbyService } from './lobby.service';
 import { Lobby, LobbyDocument } from './lobby.model';
-import { ListLobbyInput, UpdateLobbyInput } from './lobby.inputs'
+import { ListLobbyInput } from './lobby.inputs'
 import { User, UserDocument } from 'src/user/user.model';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RoleGuard } from 'src/role/role.guard';
@@ -81,11 +81,12 @@ export class LobbyResolver {
 	}
 
 	@UseGuards(JwtAuthGuard, RoleGuard)
-	@Mutation(() => Lobby, { name: 'leaveLobby' })
+	@Mutation(() => Lobby, { name: 'leaveLobby', nullable: true })
 	async leaveLobby(
 		@Context() { req }: ContextType 
 	) {
 		let lobby = await this.lobbyService.removePlayer(req.user.sub);
+		if(!lobby) return null
 		this.pubSub.publish('updateLobby', lobby);
 	
 		return lobby;
@@ -93,11 +94,12 @@ export class LobbyResolver {
 
 	@UseGuards(JwtAuthGuard, RoleGuard)
 	@Roles(Role.Owner, Role.Admin)
-	@Mutation(() => Lobby, { name: 'kick' })
+	@Mutation(() => Lobby, { name: 'kick', nullable: true })
 	async kickFromLobby(
 		@Args('id', { type: () => String }) id: Ms.Types.ObjectId
 	) {
 		let lobby = await this.lobbyService.removePlayer(id);
+		if(!lobby) return null
 		this.pubSub.publish('updateLobby', lobby);
 	
 		return lobby;
