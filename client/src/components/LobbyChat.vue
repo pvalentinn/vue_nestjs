@@ -1,9 +1,9 @@
 <template>
     <div class="chat">
         <div class="chat_body">
-            <div 
-                v-for="message in messages" 
-                :key="message.id" 
+            <div
+                v-for="message in messages"
+                :key="message.id"
                 :class="message.sender == 'server' ? 'server' : message.sender_id == props.me?.sub ? 'message mine' : 'message else'"
             >
                 <h4>{{ message.sender }}</h4>
@@ -42,7 +42,7 @@ let sendMessage = async (e: Event) => {
     try {
         await addMessage({ payload: { chat_id: props.chat, text: text.value } });
         text.value = '';
-    } catch(e: any) {
+    } catch (e: any) {
         console.log("Error in sendMessage() :" + e.message)
     }
 }
@@ -50,7 +50,7 @@ let sendMessage = async (e: Event) => {
 getChat((res) => {
     if (res.data != null) {
         let allMessages: any[] = res.data.chat.messages;
-        messages.value = allMessages.slice(allMessages.indexOf(allMessages.find(m => (m.sender == "server" && m.sender_id == props.me?.sub ))));
+        messages.value = allMessages.slice(allMessages.indexOf(allMessages.find(m => (m.sender == "server" && m.sender_id == props.me?.sub))));
     } else {
         console.log("Error in retrieving Messages in query getChat", res)
     }
@@ -59,7 +59,7 @@ getChat((res) => {
 updateChat((res) => {
     if (res.data != null) {
         let allMessages: any[] = res.data.updateChat.messages;
-        messages.value = allMessages.slice(allMessages.indexOf(allMessages.find(m => (m.sender == "server" && m.sender_id == props.me?.sub ))));
+        messages.value = allMessages.slice(allMessages.indexOf(allMessages.find(m => (m.sender == "server" && m.sender_id == props.me?.sub))));
     } else {
         console.log("Error in retrieving Messages in subscription updateChat", res)
     }
@@ -157,7 +157,7 @@ updateChatError((err) => console.log("Error in updateChat() :" + err.message));
 }
 
 .else {
-    background:#787878;
+    background: #787878;
     color: white;
     align-self: flex-start;
     text-align: start;

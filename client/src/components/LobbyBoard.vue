@@ -10,12 +10,17 @@
             </thead>
             <tbody>
                 <tr v-for="player in props.players" :key="player._id">
-                    <td></td>
+                    <td>
+                        <div
+                            class="state"
+                            :class="props.me?.state == 'unready' ? 'unready' : 'ready'"
+                        ></div>
+                    </td>
                     <td>
                         {{ player.login }}
                         <CrownSVG
                             class="crown"
-                            v-if="player.roles.find((e: string) => e == 'owner')"
+                            v-if="player.roles.find((e: string) => e == 'Owner')"
                         />
                     </td>
                     <td :class="player._id == props.me?.sub && 'select'">
@@ -56,7 +61,7 @@ const { mutate: leaveLobby } = useMutation(LEAVE_LOBBY);
 const { mutate: kickLobby } = useMutation(KICK_LOBBY);
 
 let router = useRouter();
-let props = defineProps<{ players: any[], me: { sub: string, lobby: string, roles: string[] } | null }>();
+let props = defineProps<{ players: any[], me: { sub: string, lobby: string, roles: string[], state: string } | null }>();
 let n = 8 - props.players.length;
 
 let leaveLobbyHandler = async () => {
@@ -70,6 +75,10 @@ let leaveLobbyHandler = async () => {
 }
 
 let kickLobbyHandler = async (kicked_id: string) => {
+    if (!props.me?.roles.find(e => e == "owner")) {
+        console.log('Not owner');
+        return
+    }
     try {
         await kickLobby({ id: kicked_id });
     } catch (e: any) {
@@ -86,8 +95,7 @@ main {
 }
 
 tr {
-    padding-bottom: 10px;
-    height: 60px;
+    height: 75px;
 }
 
 tr:nth-child(2n + 2) {
@@ -147,7 +155,7 @@ thead th {
 }
 
 .select {
-    padding-bottom: 20px;
+    /* padding-bottom: 20px; */
     border-bottom: 1px solid #28333f;
     text-align: center;
 }
@@ -166,6 +174,21 @@ thead th {
 
 .kick_off {
     transform: translate(65%, 30%);
+}
+
+.state {
+    /* margin: 15px; */
+    margin-bottom: 10px;
+    width: 100%;
+    height: 50px;
+}
+
+.state.unready {
+    background-color: red;
+}
+
+.state.ready {
+    background-color: green;
 }
 
 @media (max-width: 720px) {
@@ -211,6 +234,9 @@ thead th {
 
     .kick_off {
         right: 10px;
+    }
+    .state {
+        height: 35px;
     }
 }
 

@@ -1,5 +1,10 @@
 <template>
-    <ModalJoin v-if="show" :hide="hide" :id="id" @update:me="() => me = jwt_decode(Cookies.get('token')!)" />
+    <ModalJoin
+        v-if="show"
+        :hide="hide"
+        :id="id"
+        @update:me="() => me = jwt_decode(Cookies.get('token')!)"
+    />
     <div class="container" v-else-if="!loading && players && !show">
         <div class="container_header">
             <h1>Welcome to lobby {{ id }}</h1>
@@ -27,7 +32,7 @@ let { params: { id } }: any = useRoute();
 let router = useRouter();
 
 let players = ref<null | { _id: string, login: string }[]>(null);
-let me = ref<null | { sub: string, lobby: string, roles: string[] }>(null);
+let me = ref<null | { sub: string, lobby: string, roles: string[], state: string }>(null);
 let chat = ref('');
 let show = ref(false);
 
@@ -50,7 +55,7 @@ updateLobby(async result => {
             console.log(updated_players);
             players.value = updated_players;
         }
-    } catch(e: any) {
+    } catch (e: any) {
         console.log("Error in updateLobby() :", e.message)
     }
 })
@@ -59,7 +64,7 @@ getLobby(res => {
     if (!Cookies.get('token')) show.value = true;
 
     if (res.data == undefined) {
-        console.log("Error in getLobby()")
+        console.log("Error in getLobby()", res)
         if (res.error?.graphQLErrors[0].extensions?.code == "UNAUTHENTICATED") show.value = true;
         else router.push({ name: 'NotFound' });
     } else {

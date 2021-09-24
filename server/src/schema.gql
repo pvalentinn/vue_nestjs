@@ -71,6 +71,12 @@ type Query {
   users(filters: ListUserInput): [User!]!
 }
 
+enum Role {
+  Admin
+  Owner
+  User
+}
+
 type Subscription {
   updateChat(lobby_id: String!): Chat!
   updateLobby(id: String!): Lobby!
@@ -85,5 +91,12 @@ type User {
   _id: String!
   lobby: Lobby
   login: String!
-  roles: [String!]!
+  roles: [Role!]!
+  state: UserState!
+}
+
+enum UserState {
+  IN_GAME
+  READY
+  UNREADY
 }
