@@ -19,10 +19,12 @@ export class ChatResolver {
 
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Mutation(() => Chat)
-    addMessage(
+    async addMessage(
         @Args('AddMessageInput', { type: () => AddMessageInput }) payload: AddMessageInput
     ) {
-        return this.chatService.addMessage(payload);
+        let chat = await this.chatService.addMessage(payload);
+        await this.pubSub.publish('updateChat', chat);
+        return chat;
     }
 
     @UseGuards(JwtAuthGuard, RoleGuard)
