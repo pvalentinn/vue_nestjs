@@ -8,13 +8,11 @@
             >
                 <h4>{{ message.sender }}</h4>
                 <span>{{ format(message.created_at) }}</span>
-                <p>
-                    {{ message.text }}
-                </p>
+                <p>{{ message.text }}</p>
             </div>
         </div>
         <div class="chat_footer">
-            <form>
+            <form @submit="sendMessage">
                 <BeautifulInput v-model="text" label="Text here" class="darker" />
                 <BeautifulSubmit button="Send" />
             </form>
@@ -23,9 +21,9 @@
 </template>
 
 <script setup lang='ts'>
-import { useQuery, useSubscription } from "@vue/apollo-composable";
+import { useMutation, useQuery, useSubscription } from "@vue/apollo-composable";
 import { ref } from "vue-demi";
-import { GET_CHAT, UPDATE_CHAT } from "../graphql/chat.gql";
+import { ADD_MESSAGE, GET_CHAT, UPDATE_CHAT } from "../graphql/chat.gql";
 import BeautifulInput from "./BeautifulInput.vue";
 import BeautifulSubmit from "./BeautifulSubmit.vue";
 import { format } from 'timeago.js';
@@ -35,17 +33,8 @@ let props = defineProps<{ me?: { sub: string, lobby: string, roles: string[] } |
 console.log(props.me?.lobby, props);
 
 let { onResult: getChat } = useQuery(GET_CHAT, { id: props.chat })
+let { mutate: addMessage } = useMutation(ADD_MESSAGE)
 let { onResult: updateChat, onError } = useSubscription(UPDATE_CHAT, { lobby_id: props.me?.lobby });
-
-let text = ref('');
-let messages = ref<{ id: number, sender_id?: string, sender: string, text: string, created_at: Date }[]>([]);
-
-getChat((res) => {
-    console.log(res);
-    if (res.data != null) {
-        messages.value = res.data.chat.messages
-    }
-})
 
 updateChat((res) => {
     console.log(res);
@@ -57,6 +46,27 @@ updateChat((res) => {
 onError((err) => {
     console.log(err);
 })
+
+let text = ref('');
+let messages = ref<{ id: number, sender_id?: string, sender: string, text: string, created_at: Date }[]>([]);
+
+let sendMessage = async (e: SubmitEvent) => {
+    e.preventDefault();
+    try {
+        await addMessage({ payload: { chat_id: props.chat, text: text.value } });
+        text.value = '';
+    } catch(e: any) {
+        console.log(e.message);
+    }
+}
+
+getChat((res) => {
+    console.log(res);
+    if (res.data != null) {
+        messages.value = res.data.chat.messages
+    }
+})
+
 
 </script>
 
@@ -123,9 +133,9 @@ onError((err) => {
     width: 40%;
 }
 
-.message > h4 {
+/* .message > h4 {
     
-}
+} */
 
 .message > span {
     order: 3;

@@ -21,12 +21,14 @@ import BeautifulSubmit from "./BeautifulSubmit.vue";
 let username = ref('');
 let { mutate: createUser } = useMutation(CREATE_USER);
 let { mutate: joinLobby } = useMutation(JOIN_LOBBY);
-let props = defineProps<{ hide: () => void, id: string }>();
+let props = defineProps<{ hide: () => void, id: string, me: null | { sub: string, lobby: string, roles: string[] }}>();
+let emit = defineEmits(['update:me']);
 
 let submit = async (e: SubmitEvent) => {
     e.preventDefault();
     await createUser({ input: { login: username.value } });
     await joinLobby({ id: props.id })
+    emit('update:me');
     props.hide()
 }
 </script>

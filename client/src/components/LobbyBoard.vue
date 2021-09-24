@@ -67,7 +67,7 @@ let router = useRouter();
 let props = defineProps<{ players: any[], me: { sub: string, lobby: string, roles: string[] } | null }>();
 let n = 8 - props.players.length;
 
-console.log(props.me?.roles, props.me?.lobby);
+console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', props.me?.roles, props.me?.lobby);
 
 let leaveLobbyHandler = async () => {
     try {

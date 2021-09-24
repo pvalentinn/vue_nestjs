@@ -9,6 +9,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RoleGuard } from 'src/role/role.guard';
 import { Lobby } from 'src/lobby/lobby.model';
 import { AddMessageInput } from './chat.inputs';
+import { Context, ContextType } from 'src/context.decorator';
 
 @Resolver(() => Chat)
 export class ChatResolver {
@@ -20,9 +21,10 @@ export class ChatResolver {
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Mutation(() => Chat)
     async addMessage(
-        @Args('AddMessageInput', { type: () => AddMessageInput }) payload: AddMessageInput
+        @Args('AddMessageInput', { type: () => AddMessageInput }) payload: AddMessageInput,
+        @Context() { req }: ContextType
     ) {
-        let chat = await this.chatService.addMessage(payload);
+        let chat = await this.chatService.addMessage({...payload, user_id: req.user.sub});
         await this.pubSub.publish('updateChat', chat);
         return chat;
     }

@@ -27,21 +27,21 @@ export class ChatService {
         return await this.chatModel.findById(id).exec();
     }
 
-    async addMessage(payload: AddMessageInput) {
+    async addMessage({ chat_id, user_id, text }: { chat_id: Ms.Types.ObjectId, user_id: Ms.Types.ObjectId, text: string }) {
         
         let chat: ChatDocument | null | undefined;
         let user: UserDocument | null | undefined;
 
         try {
-            chat = await this.chatModel.findById(payload.id).exec();
-            user = await this.userModel.findById(payload.user_id).exec();
+            chat = await this.chatModel.findById(chat_id).exec();
+            user = await this.userModel.findById(user_id).exec();
             if(!chat) return new BadRequestException("Couldn't find the chat");
             if(!user) return new BadRequestException("Couldn't find the user");
         } catch (e) {
             return new UnauthorizedException(e.message)
         }
 
-        const message = new Message({ id: chat.messages.length, sender_id: user._id, sender: user.login, text: payload.text });
+        const message = new Message({ id: chat.messages.length, sender_id: user._id, sender: user.login, text: text });
 
         chat.messages = [...chat.messages, message];
         return await chat.save();

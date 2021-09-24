@@ -3,9 +3,8 @@
 # ------------------------------------------------------
 
 input AddMessageInput {
-  id: String!
+  chat_id: String!
   text: String!
-  user_id: String!
 }
 
 type Chat {
