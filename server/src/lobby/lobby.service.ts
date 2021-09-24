@@ -26,8 +26,8 @@ export class LobbyService {
         await user.save();
 
         const chat = await this.chatModel.create({ lobby: createdLobby._id });
-        chat.messages[0] = new Message({ id: 0, user_id: "server", text: "New lobby chat." });
-        chat.messages[1] = new Message({ id: 1, user_id: "server", text: `${user.login} joined the chat !`});
+        chat.messages[0] = new Message({ id: 0, sender: "server", text: "New lobby chat." });
+        chat.messages[1] = new Message({ id: 1, sender: "server", text: `${user.login} joined the chat !`});
         await chat.save();
 
         createdLobby.chat = chat._id;
@@ -58,7 +58,7 @@ export class LobbyService {
             await lobby.save();
 
             let chat = await this.chatModel.findById(lobby.chat).exec();
-            chat.messages = [...chat.messages, new Message({ id: chat.messages.length, user_id: "server", text: `${user.login} has joined the lobby !` })];
+            chat.messages = [...chat.messages, new Message({ id: chat.messages.length, sender: "server", text: `${user.login} has joined the lobby !` })];
             await chat.save();
 
 
@@ -97,7 +97,7 @@ export class LobbyService {
             }
 
             let chat = await this.chatModel.findById(lobby.chat).exec();
-            chat.messages = [...chat.messages, new Message({ id: chat.messages.length, user_id: "server", text: `${user.login} left the lobby !` })];
+            chat.messages = [...chat.messages, new Message({ id: chat.messages.length, sender: "server", text: `${user.login} left the lobby !` })];
             await chat.save();
 
             return { lobby: await lobby.save(), chat };

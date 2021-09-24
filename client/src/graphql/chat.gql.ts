@@ -5,7 +5,8 @@ export const GET_CHAT = gql`
         chat(id: $id){
             messages {
                 id,
-                user_id,
+                sender,
+                sender_id,
                 text,
                 created_at
             }
@@ -18,7 +19,8 @@ export const UPDATE_CHAT = gql`
         updateChat(lobby_id: $lobby_id) {
             messages {
                 id,
-                user_id,
+                sender,
+                sender_id,
                 text,
                 created_at
             }

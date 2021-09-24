@@ -41,7 +41,7 @@ export class ChatService {
             return new UnauthorizedException(e.message)
         }
 
-        const message = new Message({ id: chat.messages.length, user_id: payload.user_id, text: payload.text });
+        const message = new Message({ id: chat.messages.length, sender_id: user._id, sender: user.login, text: payload.text });
 
         chat.messages = [...chat.messages, message];
         return await chat.save();

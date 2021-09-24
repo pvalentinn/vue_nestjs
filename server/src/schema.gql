@@ -45,8 +45,9 @@ type Lobby {
 type Message {
   created_at: DateTime!
   id: Float!
+  sender: String!
+  sender_id: String
   text: String!
-  user_id: String!
 }
 
 type Mutation {

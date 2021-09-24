@@ -5,10 +5,11 @@ import { Schema } from "mongoose";
 export class Message {
 
     constructor(
-        { id, user_id, text }: { id: number, user_id: Schema.Types.ObjectId | "server", text: string }
+        { id, sender_id, text, sender }: { id: number, sender_id?: Schema.Types.ObjectId, sender: string | "server", text: string }
     ) {
         this.id = id;
-        this.user_id = user_id;
+        this.sender_id = sender_id && sender_id;
+        this.sender = sender;
         this.text = text;
         this.created_at = new Date();
     }
@@ -16,8 +17,11 @@ export class Message {
     @Field()
     id: number
 
+    @Field(() => String, { nullable: true })
+    sender_id?: Schema.Types.ObjectId
+
     @Field(() => String)
-    user_id: Schema.Types.ObjectId | "server"
+    sender: string | "server"
 
     @Field(() => String)
     text: string
