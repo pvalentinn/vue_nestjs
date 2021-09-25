@@ -6,12 +6,11 @@
 </template>
 
 <script setup lang='ts'>
-import { defineEmits, ref } from 'vue'
 let props = defineProps<{ modelValue: string, label: string }>();
 let emit = defineEmits(['update:modelValue']);
 
-let handle = ({ target }: { target: HTMLInputElement }) => {
-    console.log(props.modelValue)
+let handle = (e: Event) => {
+    let target = e.target as HTMLInputElement;
     emit("update:modelValue", target!.value);
 }
 </script>

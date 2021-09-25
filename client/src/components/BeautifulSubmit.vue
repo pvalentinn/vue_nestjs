@@ -5,8 +5,6 @@
 </template>
 
 <script setup lang='ts'>
-import { defineProps } from 'vue';
-
 let props = defineProps<{ button: string }>()
 </script>
 

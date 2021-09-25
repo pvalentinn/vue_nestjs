@@ -11,20 +11,22 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { useMutation } from "@vue/apollo-composable";
-import { ref, defineProps } from "vue";
+
 import { JOIN_LOBBY } from "../graphql/lobby.gql";
 import { CREATE_USER } from "../graphql/user.gql";
 import BeautifulInput from "./BeautifulInput.vue";
 import BeautifulSubmit from "./BeautifulSubmit.vue";
 
 let username = ref('');
-let { mutate: createUser } = useMutation(CREATE_USER);
-let { mutate: joinLobby } = useMutation(JOIN_LOBBY);
-let props = defineProps<{ hide: () => void, id: string, me: null | { sub: string, lobby: string, roles: string[] }}>();
+let props = defineProps<{ hide: () => void, id: string }>();
 let emit = defineEmits(['update:me']);
 
-let submit = async (e: SubmitEvent) => {
+let { mutate: createUser } = useMutation(CREATE_USER);
+let { mutate: joinLobby } = useMutation(JOIN_LOBBY);
+
+let submit = async (e: Event) => {
     e.preventDefault();
     await createUser({ input: { login: username.value } });
     await joinLobby({ id: props.id })

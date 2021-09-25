@@ -14,20 +14,19 @@
 import { ref } from 'vue';
 import { useMutation } from '@vue/apollo-composable'
 import { useRouter } from 'vue-router';
+
 import { CREATE_USER } from '../graphql/user.gql';
 import { CREATE_LOBBY } from '../graphql/lobby.gql';
 import BeautifulSubmit from '../components/BeautifulSubmit.vue';
 import BeautifulInput from '../components/BeautifulInput.vue';
 
 let username = ref('');
+let router = useRouter();
 
 const { mutate: createUser } = useMutation(CREATE_USER);
 const { mutate: createLobby } = useMutation(CREATE_LOBBY);
 
-let router = useRouter();
-console.log(router);
-
-let submit = async (e: SubmitEvent) => {
+let submit = async (e: Event) => {
     e.preventDefault();
 
     try {
@@ -36,8 +35,8 @@ let submit = async (e: SubmitEvent) => {
         let { data: { createLobby: lobby } } = lobby_res!;
 
         router.push({ name: "Lobby", params: { id: lobby._id } })
-    } catch (err) {
-        console.log(err);
+    } catch (err: any) {
+        console.log("Error in creating lobby :", err.message)
     }
 }
 </script>

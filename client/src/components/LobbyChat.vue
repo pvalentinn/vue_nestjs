@@ -21,53 +21,49 @@
 </template>
 
 <script setup lang='ts'>
+import { ref } from "vue";
+import { format } from 'timeago.js';
 import { useMutation, useQuery, useSubscription } from "@vue/apollo-composable";
-import { ref } from "vue-demi";
+
 import { ADD_MESSAGE, GET_CHAT, UPDATE_CHAT } from "../graphql/chat.gql";
 import BeautifulInput from "./BeautifulInput.vue";
 import BeautifulSubmit from "./BeautifulSubmit.vue";
-import { format } from 'timeago.js';
-
-
-let props = defineProps<{ me?: { sub: string, lobby: string, roles: string[] } | null, chat: string }>();
-console.log(props.me?.lobby, props);
-
-let { onResult: getChat } = useQuery(GET_CHAT, { id: props.chat })
-let { mutate: addMessage } = useMutation(ADD_MESSAGE)
-let { onResult: updateChat, onError } = useSubscription(UPDATE_CHAT, { lobby_id: props.me?.lobby });
-
-updateChat((res) => {
-    console.log(res);
-    if (res.data != null) {
-        messages.value = res.data.updateChat.messages
-    }
-});
-
-onError((err) => {
-    console.log(err);
-})
 
 let text = ref('');
 let messages = ref<{ id: number, sender_id?: string, sender: string, text: string, created_at: Date }[]>([]);
+let props = defineProps<{ me?: { sub: string, lobby: string, roles: string[] } | null, chat: string }>();
 
-let sendMessage = async (e: SubmitEvent) => {
+let { mutate: addMessage } = useMutation(ADD_MESSAGE);
+let { onResult: getChat } = useQuery(GET_CHAT, { id: props.chat });
+let { onResult: updateChat, onError: updateChatError } = useSubscription(UPDATE_CHAT, { lobby_id: props.me?.lobby });
+
+let sendMessage = async (e: Event) => {
     e.preventDefault();
     try {
         await addMessage({ payload: { chat_id: props.chat, text: text.value } });
         text.value = '';
     } catch(e: any) {
-        console.log(e.message);
+        console.log("Error in sendMessage() :" + e.message)
     }
 }
 
 getChat((res) => {
-    console.log(res);
     if (res.data != null) {
         messages.value = res.data.chat.messages
+    } else {
+        console.log("Error in retrieving Messages in query getChat", res)
     }
 })
 
+updateChat((res) => {
+    if (res.data != null) {
+        messages.value = res.data.updateChat.messages
+    } else {
+        console.log("Error in retrieving Messages in subscription updateChat", res)
+    }
+});
 
+updateChatError((err) => console.log("Error in updateChat() :" + err.message));
 </script>
 
 

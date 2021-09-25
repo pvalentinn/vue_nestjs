@@ -1,17 +1,17 @@
 <template>
-    <ModalJoin v-if="show" :hide="hide" :id="id" :me.sync="me" @update:me="handle" />
+    <ModalJoin v-if="show" :hide="hide" :id="id" @update:me="() => me = jwt_decode(Cookies.get('token')!)" />
     <div class="container" v-else-if="!loading && players && !show">
         <div class="container_header">
             <h1>Welcome to lobby {{ id }}</h1>
             <h2>The currents players are :</h2>
         </div>
         <LobbyBoard :players="players" :me="me" />
-        <LobbyChat :me="me" :chat="chat" />
+        <LobbyChat :chat="chat" :me="me" />
     </div>
 </template>
 
 <script setup lang='ts'>
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import Cookies from "js-cookie";
 import jwt_decode from 'jwt-decode';
 import { useMutation, useQuery, useSubscription } from "@vue/apollo-composable";
@@ -25,44 +25,41 @@ import LobbyChat from "../components/LobbyChat.vue";
 
 let { params: { id } }: any = useRoute();
 let router = useRouter();
-let show = ref(false);
 
 let players = ref<null | { _id: string, login: string }[]>(null);
 let me = ref<null | { sub: string, lobby: string, roles: string[] }>(null);
 let chat = ref('');
-
-let handle = () => me.value = jwt_decode(Cookies.get('token')!)
+let show = ref(false);
 
 if (Cookies.get('token')) me.value = jwt_decode(Cookies.get('token')!);
 
-const { loading, onResult, onError } = useQuery(GET_LOBBY, { id });
+const { loading, onResult: getLobby, onError: getLobbyError } = useQuery(GET_LOBBY, { id });
 const { onResult: updateLobby } = useSubscription(UPDATE_LOBBY, { id });
 const { mutate: updateToken } = useMutation(UPDATE_TOKEN);
 
 let hide = () => show.value = false;
 
 updateLobby(async result => {
-    await updateToken({ token: Cookies.get('token') });
-    me.value = jwt_decode(Cookies.get('token')!);
-    // console.log(me.value?.lobby);
-    if (!me.value?.lobby) router.push({ name: 'Home' });
+    try {
+        await updateToken({ token: Cookies.get('token') });
+        me.value = jwt_decode(Cookies.get('token')!);
+        if (!me.value?.lobby) router.push({ name: 'Home' });
 
-    let updated_players = result.data.updateLobby.players;
-    if (updated_players) {
-        console.log(updated_players);
-        players.value = updated_players;
+        let updated_players = result.data.updateLobby.players;
+        if (updated_players) {
+            console.log(updated_players);
+            players.value = updated_players;
+        }
+    } catch(e: any) {
+        console.log("Error in updateLobby() :", e.message)
     }
 })
 
-watch(me, (res) => {
-    console.log("aaaaaa");
-    console.log(res);
-})
-
-onResult(res => {
+getLobby(res => {
     if (!Cookies.get('token')) show.value = true;
 
     if (res.data == undefined) {
+        console.log("Error in getLobby()")
         if (res.error?.graphQLErrors[0].extensions?.code == "UNAUTHENTICATED") show.value = true;
         else router.push({ name: 'NotFound' });
     } else {
@@ -71,7 +68,8 @@ onResult(res => {
     }
 });
 
-onError((e) => {
+getLobbyError((e) => {
+    console.log("Error in getLobby() : " + e.message)
     if (e.message == "Cannot return null for non-nullable field Query.lobby.") {
         router.push({ name: 'Home' });
         Cookies.remove('token');

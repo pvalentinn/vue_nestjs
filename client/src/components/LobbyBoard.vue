@@ -17,10 +17,6 @@
                             class="crown"
                             v-if="player.roles.find((e: string) => e == 'owner')"
                         />
-                        <!-- <DeleteCrossSVG
-                            class="crown"
-                            v-if="(player._id != payload.sub) && payload.roles.find((e: string) => e == 'owner')"
-                        />-->
                     </td>
                     <td :class="player._id == props.me?.sub && 'select'">
                         <button v-if="player._id == props.me?.sub" class="button" href="#">Select</button>
@@ -47,27 +43,21 @@
 </template>
 
 <script setup lang='ts'>
-import { defineProps } from 'vue';
 import { useMutation } from '@vue/apollo-composable';
 import { useRouter } from 'vue-router';
 import Cookies from 'js-cookie'
 
-import LobbyLeaveSVG from './svg/LobbyLeaveSVG.vue';
-import CrownSVG from './svg/CrownSVG.vue';
 import { KICK_LOBBY, LEAVE_LOBBY } from '../graphql/lobby.gql';
+import CrownSVG from './svg/CrownSVG.vue';
 import KickOffSVG from './svg/KickOffSVG.vue';
-import DeleteCrossSVG from './svg/DeleteCrossSVG.vue';
+import LobbyLeaveSVG from './svg/LobbyLeaveSVG.vue';
 
 const { mutate: leaveLobby } = useMutation(LEAVE_LOBBY);
 const { mutate: kickLobby } = useMutation(KICK_LOBBY);
 
-let payload: any;
-
 let router = useRouter();
 let props = defineProps<{ players: any[], me: { sub: string, lobby: string, roles: string[] } | null }>();
 let n = 8 - props.players.length;
-
-console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', props.me?.roles, props.me?.lobby);
 
 let leaveLobbyHandler = async () => {
     try {
@@ -75,7 +65,7 @@ let leaveLobbyHandler = async () => {
         Cookies.remove('token');
         router.push({ name: "Home" });
     } catch (e: any) {
-        console.log(e.message)
+        console.log("Error in leaveLobbyHandler() :" + e.message)
     }
 }
 
@@ -83,7 +73,7 @@ let kickLobbyHandler = async (kicked_id: string) => {
     try {
         await kickLobby({ id: kicked_id });
     } catch (e: any) {
-        console.log(e.message)
+        console.log("Error in kickLobbyHandler() :" + e.message)
     }
 }
 
