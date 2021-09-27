@@ -49,7 +49,8 @@ let sendMessage = async (e: Event) => {
 
 getChat((res) => {
     if (res.data != null) {
-        messages.value = res.data.chat.messages
+        let allMessages: any[] = res.data.chat.messages;
+        messages.value = allMessages.slice(allMessages.indexOf(allMessages.find(m => (m.sender == "server" && m.sender_id == props.me?.sub ))));
     } else {
         console.log("Error in retrieving Messages in query getChat", res)
     }
@@ -57,7 +58,8 @@ getChat((res) => {
 
 updateChat((res) => {
     if (res.data != null) {
-        messages.value = res.data.updateChat.messages
+        let allMessages: any[] = res.data.updateChat.messages;
+        messages.value = allMessages.slice(allMessages.indexOf(allMessages.find(m => (m.sender == "server" && m.sender_id == props.me?.sub ))));
     } else {
         console.log("Error in retrieving Messages in subscription updateChat", res)
     }
