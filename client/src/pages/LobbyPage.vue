@@ -52,7 +52,7 @@ updateLobby(async result => {
 
         let updated_players = result.data.updateLobby.players;
         if (updated_players) {
-            console.log(updated_players);
+            // console.log(updated_players);
             players.value = updated_players;
         }
     } catch (e: any) {

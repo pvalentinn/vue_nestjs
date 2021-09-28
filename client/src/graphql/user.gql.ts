@@ -22,3 +22,11 @@ export const UPDATE_TOKEN = gql`
         updateToken(token: $token)
     }
 `
+
+export const UPDATE_STATE = gql`
+    mutation updateState($state: UserState!) {
+        updateUserState(state: $state){
+            _id
+        }
+    }
+`

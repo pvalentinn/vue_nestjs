@@ -15,7 +15,8 @@ export const GET_LOBBY = gql`
             players {
                 _id,
                 login,
-                roles
+                roles,
+                state
             },
             chat {
                 _id
@@ -27,12 +28,7 @@ export const GET_LOBBY = gql`
 export const JOIN_LOBBY = gql`
     mutation joinLobby($id: String!) {
         joinLobby(lobby_id: $id) {
-            _id,
-            players {
-                _id,
-                login,
-                roles
-            }
+            _id
         }
     }
 `
@@ -40,12 +36,7 @@ export const JOIN_LOBBY = gql`
 export const LEAVE_LOBBY = gql`
     mutation leaveLobby {
         leaveLobby{
-            _id,
-            players {
-                _id,
-                login,
-                roles
-            }
+            _id
         }
     }
 `
@@ -64,7 +55,8 @@ export const UPDATE_LOBBY = gql`
             players {
                 _id,
                 login,
-                roles
+                roles,
+                state
             }
         }
     }

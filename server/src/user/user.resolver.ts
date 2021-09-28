@@ -4,7 +4,7 @@ import { PubSub } from 'graphql-subscriptions';
 import { Schema as Ms } from 'mongoose';
 
 import { UserService } from './user.service';
-import { User, UserDocument } from './user.model';
+import { State, User, UserDocument } from './user.model';
 import { CreateUserInput, ListUserInput, UpdateUserInput } from './user.inputs'
 import { AuthService } from 'src/auth/auth.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -87,6 +87,28 @@ export class UserResolver {
 		req.res.setHeader('Set-Cookie', 'token=' + access_token + "; Path=/;");
 
 		return true;
+	}
+
+	@Mutation(() => User)
+	@UseGuards(JwtAuthGuard)
+	async updateUserState(
+		@Args('state', { type: () => State }) state: State,
+		@Context() { req }: ContextType
+	) {
+		try {
+			const user = await this.userService.getById(req.user.sub);
+			if(!user) return new UnauthorizedException('No user found.');
+
+			user.state = state;
+			await user.save();
+			await user.populate({ path: 'lobby', model: "Lobby" });
+
+			this.pubSub.publish('updateLobby', user.lobby);			
+			
+			return user;
+		} catch (e: any) {
+			return new UnauthorizedException(e.message)
+		}
 	}
 
 	@ResolveField()

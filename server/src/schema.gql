@@ -60,6 +60,7 @@ type Mutation {
   removeUser: User!
   updateToken(token: String!): Boolean!
   updateUser(updateUserInput: UpdateUserInput!): User!
+  updateUserState(state: UserState!): User!
 }
 
 type Query {

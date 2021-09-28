@@ -11,10 +11,7 @@
             <tbody>
                 <tr v-for="player in props.players" :key="player._id">
                     <td>
-                        <div
-                            class="state"
-                            :class="props.me?.state == 'unready' ? 'unready' : 'ready'"
-                        ></div>
+                        <div class="state" :class="player.state == 'UNREADY' ? 'unready' : 'ready'"></div>
                     </td>
                     <td>
                         {{ player.login }}
@@ -24,7 +21,11 @@
                         />
                     </td>
                     <td :class="player._id == props.me?.sub && 'select'">
-                        <button v-if="player._id == props.me?.sub" class="button" href="#">Select</button>
+                        <button
+                            v-if="player._id == props.me?.sub"
+                            class="button"
+                            @click="changeState"
+                        >Ready</button>
                     </td>
                     <LobbyLeaveSVG
                         class="quit"
@@ -37,7 +38,7 @@
                         @click="() => kickLobbyHandler(player._id)"
                     />
                 </tr>
-                <tr v-for="i in n">
+                <tr v-for="i in 8 - props.players.length">
                     <td></td>
                     <td></td>
                     <td></td>
@@ -52,6 +53,7 @@ import { useMutation } from '@vue/apollo-composable';
 import { useRouter } from 'vue-router';
 import Cookies from 'js-cookie'
 
+import { UPDATE_STATE } from '../graphql/user.gql';
 import { KICK_LOBBY, LEAVE_LOBBY } from '../graphql/lobby.gql';
 import CrownSVG from './svg/CrownSVG.vue';
 import KickOffSVG from './svg/KickOffSVG.vue';
@@ -59,10 +61,18 @@ import LobbyLeaveSVG from './svg/LobbyLeaveSVG.vue';
 
 const { mutate: leaveLobby } = useMutation(LEAVE_LOBBY);
 const { mutate: kickLobby } = useMutation(KICK_LOBBY);
+const { mutate: updateUserState } = useMutation(UPDATE_STATE)
 
 let router = useRouter();
 let props = defineProps<{ players: any[], me: { sub: string, lobby: string, roles: string[], state: string } | null }>();
-let n = 8 - props.players.length;
+
+let changeState = async () => {
+    try {
+        await updateUserState({ state: props.me?.state == "unready" ? "READY" : "UNREADY" });
+    } catch (e: any) {
+        console.log("Error in changeStatus() : " + e.message);
+    }
+}
 
 let leaveLobbyHandler = async () => {
     try {
@@ -179,16 +189,17 @@ thead th {
 .state {
     /* margin: 15px; */
     margin-bottom: 10px;
+    border-radius: 3px;
     width: 100%;
     height: 50px;
 }
 
 .state.unready {
-    background-color: red;
+    background-color: #b20000;
 }
 
 .state.ready {
-    background-color: green;
+    background-color: rgb(4, 148, 4);
 }
 
 @media (max-width: 720px) {
