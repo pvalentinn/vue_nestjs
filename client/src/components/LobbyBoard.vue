@@ -24,18 +24,18 @@
                         <button
                             v-if="player._id == props.me?.sub"
                             class="button"
-                            @click="changeState"
+                            @click="() => changeState()"
                         >Ready</button>
                     </td>
                     <LobbyLeaveSVG
                         class="quit"
                         v-if="player._id == props.me?.sub"
-                        @click="leaveLobbyHandler"
+                        @click="() => leaveLobbyHandler()"
                     />
                     <KickOffSVG
                         class="quit kick_off"
                         v-if="(player._id != props.me?.sub) && props.me?.roles.find((e: string) => e == 'owner')"
-                        @click="() => kickLobbyHandler(player._id)"
+                        @click="() => leaveLobbyHandler(player._id)"
                     />
                 </tr>
                 <tr v-for="i in 8 - props.players.length">
@@ -45,57 +45,68 @@
                 </tr>
             </tbody>
         </table>
+        <div
+            class="countdown"
+            v-if="props.players.length >= 2 && !props.players.find(p => p.state == 'UNREADY')"
+        >{{ count }}</div>
     </main>
 </template>
 
 <script setup lang='ts'>
+import { ref } from 'vue';
 import { useMutation } from '@vue/apollo-composable';
 import { useRouter } from 'vue-router';
 import Cookies from 'js-cookie'
 
-import { UPDATE_STATE } from '../graphql/user.gql';
-import { KICK_LOBBY, LEAVE_LOBBY } from '../graphql/lobby.gql';
+import { UPDATE_STATE, UPDATE_TOKEN } from '../graphql/user.gql';
+import { LEAVE_LOBBY } from '../graphql/lobby.gql';
 import CrownSVG from './svg/CrownSVG.vue';
 import KickOffSVG from './svg/KickOffSVG.vue';
 import LobbyLeaveSVG from './svg/LobbyLeaveSVG.vue';
 
 const { mutate: leaveLobby } = useMutation(LEAVE_LOBBY);
-const { mutate: kickLobby } = useMutation(KICK_LOBBY);
-const { mutate: updateUserState } = useMutation(UPDATE_STATE)
+const { mutate: updateUserState } = useMutation(UPDATE_STATE);
+const { mutate: updateToken } = useMutation(UPDATE_TOKEN);
 
+let count = ref(5);
 let router = useRouter();
 let props = defineProps<{ players: any[], me: { sub: string, lobby: string, roles: string[], state: string } | null }>();
+let emit = defineEmits(['update:me']);
 
-let changeState = async () => {
+updateToken({ token: Cookies.get('token') }).then(() => emit('update:me'));
+
+let changeState = async (force: boolean = false) => {
+    count.value = 5;
     try {
-        await updateUserState({ state: props.me?.state == "unready" ? "READY" : "UNREADY" });
+        let state = force ? "UNREADY" : props.me?.state == "unready" ? "READY" : "UNREADY";
+        if (force && props.me!.state == "UNREADY") return;
+        else {
+            await updateUserState({ state });
+        }
     } catch (e: any) {
         console.log("Error in changeStatus() : " + e.message);
     }
 }
 
-let leaveLobbyHandler = async () => {
+let leaveLobbyHandler = async (kicked_id?: string) => {
     try {
-        await leaveLobby();
-        Cookies.remove('token');
-        router.push({ name: "Home" });
+        if (kicked_id && !props.me?.roles.find(e => e == "owner")) {
+            console.log('Not owner');
+            return
+        }
+
+        if (kicked_id) await leaveLobby({ id: kicked_id });
+        else {
+            await leaveLobby();
+            Cookies.remove('token');
+            router.push({ name: "Home" });
+        }
     } catch (e: any) {
         console.log("Error in leaveLobbyHandler() :" + e.message)
     }
 }
 
-let kickLobbyHandler = async (kicked_id: string) => {
-    if (!props.me?.roles.find(e => e == "owner")) {
-        console.log('Not owner');
-        return
-    }
-    try {
-        await kickLobby({ id: kicked_id });
-    } catch (e: any) {
-        console.log("Error in kickLobbyHandler() :" + e.message)
-    }
-}
-
+window.addEventListener("beforeunload", () => { changeState(true) })
 </script>
 
 <style scoped>

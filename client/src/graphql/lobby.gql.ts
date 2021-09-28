@@ -34,16 +34,8 @@ export const JOIN_LOBBY = gql`
 `
 
 export const LEAVE_LOBBY = gql`
-    mutation leaveLobby {
-        leaveLobby{
-            _id
-        }
-    }
-`
-
-export const KICK_LOBBY = gql`
-    mutation kickLobby($id: String!) {
-        kick(id: $id){
+    mutation leaveLobby($id: String) {
+        leaveLobby(id: $id){
             _id
         }
     }

@@ -88,33 +88,21 @@ export class LobbyResolver {
 	@UseGuards(JwtAuthGuard, RoleGuard)
 	@Mutation(() => Lobby, { name: 'leaveLobby', nullable: true })
 	async leaveLobby(
-		@Context() { req }: ContextType 
+		@Context() { req }: ContextType,
+		@Args('id', { type: () => String, nullable: true }) id: Ms.Types.ObjectId
 	) {
 		try {
-			let { lobby, chat }: any = await this.lobbyService.removePlayer(req.user.sub);
+			
+			if(id && !req.user.roles.filter((e) => e != Role.User).length) return new UnauthorizedException('You are not allowed to do that.');
+			let target = id ? id : req.user.sub;
+
+			let { lobby, chat }: any = await this.lobbyService.removePlayer(target);
 			await this.pubSub.publish('updateLobby', lobby);
 			await this.pubSub.publish('updateChat', chat);
 		
 			return lobby;
 
 		} catch (e) {
-			return null
-		}
-	}
-
-	@UseGuards(JwtAuthGuard, RoleGuard)
-	@Roles(Role.Owner, Role.Admin)
-	@Mutation(() => Lobby, { name: 'kick', nullable: true })
-	async kickFromLobby(
-		@Args('id', { type: () => String }) id: Ms.Types.ObjectId
-	) {
-		let { lobby, chat }: any = await this.lobbyService.removePlayer(id);
-		if(lobby) {
-			await this.pubSub.publish('updateLobby', lobby);
-			await this.pubSub.publish('updateChat', chat);
-		
-			return lobby;
-		} else {
 			return null
 		}
 	}

@@ -10,7 +10,11 @@
             <h1>Welcome to lobby {{ id }}</h1>
             <h2>The currents players are :</h2>
         </div>
-        <LobbyBoard :players="players" :me="me" />
+        <LobbyBoard
+            :players="players"
+            :me="me"
+            @update:me="() => me = jwt_decode(Cookies.get('token')!)"
+        />
         <LobbyChat :chat="chat" :me="me" />
     </div>
 </template>
