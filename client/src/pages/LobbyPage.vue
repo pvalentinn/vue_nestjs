@@ -31,11 +31,12 @@ import { GET_LOBBY, UPDATE_LOBBY } from "../graphql/lobby.gql";
 import ModalJoin from "../components/ModalJoin.vue";
 import LobbyBoard from "../components/LobbyBoard.vue";
 import LobbyChat from "../components/LobbyChat.vue";
+import Countdown from '../components/Countdown.vue';
 
 let { params: { id } }: any = useRoute();
 let router = useRouter();
 
-let players = ref<null | { _id: string, login: string }[]>(null);
+let players = ref<null | { _id: string, login: string, state: string }[]>(null);
 let me = ref<null | { sub: string, lobby: string, roles: string[], state: string }>(null);
 let chat = ref('');
 let show = ref(false);

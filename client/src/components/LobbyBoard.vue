@@ -6,6 +6,10 @@
                     <th class="ready"></th>
                     <th class="username">Username</th>
                     <th class="action"></th>
+                    <Countdown
+                        v-if="players && players.length >= 2 && !players.find(p => p.state == 'UNREADY')"
+                        v-model="count"
+                    />
                 </tr>
             </thead>
             <tbody>
@@ -45,10 +49,6 @@
                 </tr>
             </tbody>
         </table>
-        <div
-            class="countdown"
-            v-if="props.players.length >= 2 && !props.players.find(p => p.state == 'UNREADY')"
-        >{{ count }}</div>
     </main>
 </template>
 
@@ -63,6 +63,7 @@ import { LEAVE_LOBBY } from '../graphql/lobby.gql';
 import CrownSVG from './svg/CrownSVG.vue';
 import KickOffSVG from './svg/KickOffSVG.vue';
 import LobbyLeaveSVG from './svg/LobbyLeaveSVG.vue';
+import Countdown from '../components/Countdown.vue';
 
 const { mutate: leaveLobby } = useMutation(LEAVE_LOBBY);
 const { mutate: updateUserState } = useMutation(UPDATE_STATE);
@@ -117,6 +118,7 @@ main {
 
 tr {
     height: 75px;
+    position: relative;
 }
 
 tr:nth-child(2n + 2) {
