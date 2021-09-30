@@ -13,6 +13,7 @@
         <LobbyBoard
             :players="players"
             :me="me"
+            :count="count"
             @update:me="() => me = jwt_decode(Cookies.get('token')!)"
         />
         <LobbyChat :chat="chat" :me="me" />
@@ -31,7 +32,6 @@ import { GET_LOBBY, UPDATE_LOBBY } from "../graphql/lobby.gql";
 import ModalJoin from "../components/ModalJoin.vue";
 import LobbyBoard from "../components/LobbyBoard.vue";
 import LobbyChat from "../components/LobbyChat.vue";
-import Countdown from '../components/Countdown.vue';
 
 let { params: { id } }: any = useRoute();
 let router = useRouter();
@@ -40,6 +40,8 @@ let players = ref<null | { _id: string, login: string, state: string }[]>(null);
 let me = ref<null | { sub: string, lobby: string, roles: string[], state: string }>(null);
 let chat = ref('');
 let show = ref(false);
+let count = ref(5);
+let interval = ref();
 
 if (Cookies.get('token')) me.value = jwt_decode(Cookies.get('token')!);
 
@@ -59,6 +61,18 @@ updateLobby(async result => {
         if (updated_players) {
             // console.log(updated_players);
             players.value = updated_players;
+            if(players.value && players.value.length >= 2 && !players.value.find(p => p.state == 'UNREADY')) {
+                interval.value = setInterval(() => {
+                    count.value = count.value - 1;
+                    if(count.value == 0) {
+                        clearInterval(interval.value);
+                        router.push({ name: 'Game', params: { id } });
+                    }
+                }, 1000)
+            } else {
+                clearInterval(interval.value);
+                count.value = 5;
+            }
         }
     } catch (e: any) {
         console.log("Error in updateLobby() :", e.message)

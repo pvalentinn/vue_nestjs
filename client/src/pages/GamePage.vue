@@ -1,0 +1,3 @@
+<template>
+    BIENVENUE DANS LA GAME AHAHAHAHAHAHAHAHAHAHAH
+</template>

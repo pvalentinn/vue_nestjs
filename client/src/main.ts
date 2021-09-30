@@ -9,10 +9,12 @@ import App from './App.vue';
 import NotFound from './pages/NotFound.vue';
 import HomePage from './pages/HomePage.vue';
 import LobbyPage from './pages/LobbyPage.vue';
+import GamePage from './pages/GamePage.vue';
 
 const routes = [
     { path: '/', name:'Home', component: HomePage},
     { path: '/lobby/:id([0-9a-f]{20,25})', name: 'Lobby', component: LobbyPage },
+    { path: '/game/:id([0-9a-f]{20,25})', name: 'Game', component: GamePage },
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
 ];
 

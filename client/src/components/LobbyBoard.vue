@@ -6,10 +6,9 @@
                     <th class="ready"></th>
                     <th class="username">Username</th>
                     <th class="action"></th>
-                    <Countdown
-                        v-if="players && players.length >= 2 && !players.find(p => p.state == 'UNREADY')"
-                        v-model="count"
-                    />
+                    <div v-if="players && players.length >= 2 && !players.find(p => p.state == 'UNREADY')" class='square'>
+                        <span>{{ props.count }}</span>
+                    </div>
                 </tr>
             </thead>
             <tbody>
@@ -53,7 +52,6 @@
 </template>
 
 <script setup lang='ts'>
-import { ref } from 'vue';
 import { useMutation } from '@vue/apollo-composable';
 import { useRouter } from 'vue-router';
 import Cookies from 'js-cookie'
@@ -63,21 +61,18 @@ import { LEAVE_LOBBY } from '../graphql/lobby.gql';
 import CrownSVG from './svg/CrownSVG.vue';
 import KickOffSVG from './svg/KickOffSVG.vue';
 import LobbyLeaveSVG from './svg/LobbyLeaveSVG.vue';
-import Countdown from '../components/Countdown.vue';
 
 const { mutate: leaveLobby } = useMutation(LEAVE_LOBBY);
 const { mutate: updateUserState } = useMutation(UPDATE_STATE);
 const { mutate: updateToken } = useMutation(UPDATE_TOKEN);
 
-let count = ref(5);
 let router = useRouter();
-let props = defineProps<{ players: any[], me: { sub: string, lobby: string, roles: string[], state: string } | null }>();
+let props = defineProps<{ players: any[], me: { sub: string, lobby: string, roles: string[], state: string } | null, count: number }>();
 let emit = defineEmits(['update:me']);
 
 updateToken({ token: Cookies.get('token') }).then(() => emit('update:me'));
 
 let changeState = async (force: boolean = false) => {
-    count.value = 5;
     try {
         let state = force ? "UNREADY" : props.me?.state == "unready" ? "READY" : "UNREADY";
         if (force && props.me!.state == "UNREADY") return;
@@ -213,6 +208,27 @@ thead th {
 
 .state.ready {
     background-color: rgb(4, 148, 4);
+}
+
+.square {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.199);
+    transform: translate(0, 0) rotate(45deg);
+    left: calc(50% - 50px);
+    top: -20%;
+    z-index: 50;
+    border: 5px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.square > span {
+    transform: rotate(-45deg);
+    font-size: 40px;
 }
 
 @media (max-width: 720px) {
