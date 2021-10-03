@@ -12,6 +12,7 @@ import { PubSubModule } from 'src/pubsub/pubsub.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
+import { GameModule } from 'src/game/game.module';
 
 @Module({
   	imports: [
@@ -34,6 +35,7 @@ import { ConfigModule } from '@nestjs/config';
 		LobbyModule,
 		UserModule,
 		ChatModule,
+		GameModule,
 		PubSubModule,
 		AuthModule
  	],

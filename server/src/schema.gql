@@ -7,6 +7,11 @@ input AddMessageInput {
   text: String!
 }
 
+type Card {
+  color: String!
+  value: String!
+}
+
 type Chat {
   _id: String!
   lobby: Lobby!
@@ -22,6 +27,18 @@ input CreateUserInput {
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+type Game {
+  deck: [Card!]!
+  hands: [Hand!]!
+  lobby_id: Lobby!
+  pile: [Card!]
+}
+
+type Hand {
+  cards: [Card!]!
+  user_id: User!
+}
 
 input ListLobbyInput {
   _id: String
@@ -51,6 +68,7 @@ type Message {
 
 type Mutation {
   addMessage(AddMessageInput: AddMessageInput!): Chat!
+  createGame(lobby_id: String!): Game!
   createLobby: Lobby!
   createUser(createUserInput: CreateUserInput!): User!
   joinLobby(lobby_id: String!): Lobby!
