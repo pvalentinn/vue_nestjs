@@ -29,15 +29,17 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Game {
+  current_color: String!
   deck: [Card!]!
   hands: [Hand!]!
-  lobby_id: Lobby!
+  lobby_id: String!
   pile: [Card!]
+  turn: Hand!
 }
 
 type Hand {
   cards: [Card!]!
-  user_id: User!
+  user_id: String!
 }
 
 input ListLobbyInput {

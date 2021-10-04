@@ -32,6 +32,7 @@ import { GET_LOBBY, UPDATE_LOBBY } from "../graphql/lobby.gql";
 import ModalJoin from "../components/ModalJoin.vue";
 import LobbyBoard from "../components/LobbyBoard.vue";
 import LobbyChat from "../components/LobbyChat.vue";
+import { CREATE_GAME } from "../graphql/game.gql";
 
 let { params: { id } }: any = useRoute();
 let router = useRouter();
@@ -48,6 +49,7 @@ if (Cookies.get('token')) me.value = jwt_decode(Cookies.get('token')!);
 const { loading, onResult: getLobby, onError: getLobbyError } = useQuery(GET_LOBBY, { id });
 const { onResult: updateLobby } = useSubscription(UPDATE_LOBBY, { id });
 const { mutate: updateToken } = useMutation(UPDATE_TOKEN);
+const { mutate: createGame } = useMutation(CREATE_GAME);
 
 let hide = () => show.value = false;
 
@@ -56,17 +58,18 @@ updateLobby(async result => {
         await updateToken({ token: Cookies.get('token') });
         me.value = jwt_decode(Cookies.get('token')!);
         if (!me.value?.lobby) router.push({ name: 'Home' });
+        else if(me.value.state == "in_game") router.push({ name: 'Game', params: { id } });
 
         let updated_players = result.data.updateLobby.players;
         if (updated_players) {
             // console.log(updated_players);
             players.value = updated_players;
             if(players.value && players.value.length >= 2 && !players.value.find(p => p.state == 'UNREADY')) {
-                interval.value = setInterval(() => {
+                interval.value = setInterval(async () => {
                     count.value = count.value - 1;
                     if(count.value == 0) {
                         clearInterval(interval.value);
-                        router.push({ name: 'Game', params: { id } });
+                        if(me.value?.roles.find((role) => role == "owner")) await createGame({ lobby_id: me.value.lobby });
                     }
                 }, 1000)
             } else {

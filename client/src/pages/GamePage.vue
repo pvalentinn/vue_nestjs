@@ -3,7 +3,7 @@
         <div class="circle">
             <div class="top" ref="topdiv">
                 <div class='opponent' v-for="i in n">
-                    <PersonSVG width='50'/>
+                    <!-- <PersonSVG width='50'/> -->
                     <h2>Name {{ i }}</h2>
                     <div class="opponent_card"></div>
                 </div>
@@ -25,13 +25,21 @@
 </template>
 
 <script setup lang="ts">
+import { useMutation } from '@vue/apollo-composable';
 import { ref, onMounted } from 'vue';
-import PersonSVG from './PersonSVG.vue';
+import Cookies from "js-cookie";
+import jwt_decode from 'jwt-decode';
+
+import { UPDATE_TOKEN } from '../graphql/user.gql';
+// import PersonSVG from './PersonSVG.vue';
+
+const { mutate: updateToken } = useMutation(UPDATE_TOKEN);
+let me = ref<{ sub: string, lobby: string, roles: string[], state: string } | null>(null);
 
 let topdiv = ref<HTMLDivElement>();
 let n = 1;
 
-onMounted(() => {
+onMounted(async () => {
     let opponents = document.getElementsByClassName('opponent') as HTMLCollectionOf<HTMLDivElement>;
 
     for(let i = 0; i < n; i++) {
@@ -45,17 +53,19 @@ onMounted(() => {
         opponents[i].style.setProperty('left', left);
         opponents[i].style.setProperty('top', top);
     }
+	await updateToken({ token: Cookies.get('token') });
+	me.value = jwt_decode(Cookies.get('token')!);
+	console.log(me.value);
 })
 
 </script>
 
 
-<style>
+<style scoped>
 .container {
 	height: 80vh;
 	width: 100%;
 	padding: 20px;
-	background-color: blue;
 }
 
 .circle {

@@ -27,21 +27,23 @@ import { REMOVE_USER } from './graphql/user.gql';
 const router = useRouter();
 let route = useRoute();
 
-let getLobby = (): string | null => {
+let getToken = (): {lobby: string, state: string} | null => {
 	let token = Cookies.get('token');
-	if (token) return jwt_decode<{lobby: string}>(token).lobby;
+	if (token) return jwt_decode<{lobby: string, state: string}>(token);
 	else return null;
 }
 
-let lobby = getLobby();
-if (lobby && route.params.id != lobby) {
-	router.push({ name: "Lobby", params: { id: lobby } })
+let token = getToken();
+if (token?.lobby && route.params.id != token?.lobby) {
+	console.log(token);
+	if(token?.state == "in_game") router.push({ name: "Game", params: { id: token?.lobby } })
+	else router.push({ name: "Lobby", params: { id: token?.lobby } })
 }
 
 let handler = async (e: BeforeUnloadEvent) => {
 	e.preventDefault();
 
-	if (!getLobby()) {
+	if (!getToken()?.lobby) {
 		Cookies.remove('token');
 		useMutation(REMOVE_USER);
 	}

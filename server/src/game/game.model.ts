@@ -5,10 +5,60 @@ import { Lobby } from 'src/lobby/lobby.model';
 import { User } from 'src/user/user.model';
 
 @ObjectType()
+export class Hand {
+    @Field(() => String)
+    @Prop({ type: Ms.Types.ObjectId, ref: User.name })
+    user_id: Ms.Types.ObjectId;
+
+    @Field(() => [Card])
+    cards: Card[]
+}
+
+@ObjectType()
+export class Card {
+    constructor(color: string, value: string) {
+        this.color = color;
+        this.value = value;
+    }
+
+    @Field(() => String)
+    color: string;
+
+    @Field(() => String)
+    value: string;
+}
+
+
+@ObjectType()
 @Schema({ timestamps: true })
 export class Game {
     constructor(lobby: Lobby) {
         this.lobby_id = lobby._id;
+        this.deck = this.createDeck();
+        this.hands = lobby.players.map((user_id) => {
+            let hand = new Hand();
+            hand.user_id = user_id;
+
+            let cards: Card[] = [];
+            for(let i = 0; i < 7; i++) {
+                cards.push(this.deck.shift());
+            }
+            hand.cards = cards;
+            return hand;
+        })
+
+        this.pile = this.deck.reduce((value: Card[], card: Card) => {
+            if(!value.length || value[value.length - 1].color == 'black') {
+                this.deck.shift();
+                return [...value, card];
+            } else return value;
+        }, [])
+
+        this.current_color = this.pile[this.pile.length - 1].color;
+        this.turn = this.hands[Math.floor(Math.random() * this.hands.length)];
+    }
+
+    createDeck() {
         let deck: Card[] = [];
         let colors = ["red", "blue", "green", "yellow"];
 
@@ -18,7 +68,7 @@ export class Game {
 
             for(let i = 1; i <= 9; i++) {
                 deck.push(new Card(color, i.toString()));
-                if(i == 6 || i == 9) deck.push(new Card(color, i.toString()));
+                deck.push(new Card(color, i.toString()));
             }
 
             for(let i = 0; i < 3; i++) {
@@ -43,22 +93,10 @@ export class Game {
         deck.sort(() => Math.random() - 0.5);
         deck.reverse();
         deck.sort(() => Math.random() - 0.5);
-
-        this.deck = deck;
-        this.hands = lobby.players.map((user_id) => {
-            let hand = new Hand();
-            hand.user_id = user_id;
-
-            let cards: Card[] = [];
-            for(let i = 0; i < 7; i++) {
-                cards.push(this.deck.shift());
-            }
-            hand.cards = cards;
-            return hand;
-        })
+        return deck;
     }
 
-    @Field(() => Lobby)
+    @Field(() => String)
     @Prop({ type: Ms.Types.ObjectId, ref: Lobby.name })
     lobby_id: Ms.Types.ObjectId;
 
@@ -69,32 +107,14 @@ export class Game {
     deck: Card[];
 
     @Field(() => [Card], { nullable: true })
-    pile?: Card[];
+    pile: Card[];
+
+    @Field(() => Hand)
+    turn: Hand;
+
+    @Field(() => String)
+    current_color: String
 }
 
 export type GameDocument = Game & Document;
 export const GameSchema = SchemaFactory.createForClass(Game);
-
-@ObjectType()
-export class Hand {
-    @Field(() => User)
-    @Prop({ type: Ms.Types.ObjectId, ref: User.name })
-    user_id: Ms.Types.ObjectId;
-
-    @Field(() => [Card])
-    cards: Card[]
-}
-
-@ObjectType()
-export class Card {
-    constructor(color: string, value: string) {
-        this.color = color;
-        this.value = value;
-    }
-
-    @Field(() => String)
-    color: string;
-
-    @Field(() => String)
-    value: string;
-}

@@ -1,12 +1,14 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { Inject, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Inject, UseGuards } from '@nestjs/common';
 import { Schema as Ms } from 'mongoose';
-import { GameService } from './game.service';
 import { PubSub } from 'graphql-subscriptions';
+
+import { GameService } from './game.service';
+import { Game, GameDocument } from './game.model';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RoleGuard } from 'src/role/role.guard';
 import { Roles, Role } from 'src/role/role.decorator';
-import { Game } from './game.model';
+import { LobbyDocument } from 'src/lobby/lobby.model';
 
 @Resolver()
 export class GameResolver {
@@ -21,6 +23,8 @@ export class GameResolver {
     async createGame( 
         @Args('lobby_id', { type: () => String }) lobby_id: Ms.Types.ObjectId
     ) {
-        return this.gameService.create(lobby_id);
+        let { lobby, game } = await this.gameService.create(lobby_id) as { game: GameDocument, lobby: LobbyDocument };
+        this.pubSub.publish('updateLobby', lobby);
+        return game;
     }
 }
