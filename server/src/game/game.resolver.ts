@@ -9,6 +9,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { RoleGuard } from 'src/role/role.guard';
 import { Roles, Role } from 'src/role/role.decorator';
 import { LobbyDocument } from 'src/lobby/lobby.model';
+import { Context, ContextType } from 'src/context.decorator';
 
 @Resolver()
 export class GameResolver {
@@ -31,8 +32,9 @@ export class GameResolver {
     @Query(() => Game, { name: 'game' })
     @UseGuards(JwtAuthGuard)
     getGame(
-        @Args('lobby_id', { type: () => String }) lobby_id: Ms.Types.ObjectId
+        @Args('lobby_id', { type: () => String }) lobby_id: Ms.Types.ObjectId,
+        @Context() { req }: ContextType
     ) {
-        return this.gameService.getByLobby(lobby_id);
+        return this.gameService.getByLobby(lobby_id, req.user.sub);
     }
 }

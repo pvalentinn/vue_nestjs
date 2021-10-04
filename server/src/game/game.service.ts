@@ -40,6 +40,7 @@ export class GameService {
                 }
 
                 hand.cards = cards;
+                hand.left = cards.length;
                 game.hands.push(hand);
             }
             game.pile = game.deck.reduce((value: Card[], card: Card) => {
@@ -60,9 +61,15 @@ export class GameService {
         }
     }
 
-    async getByLobby(lobby_id: Ms.Types.ObjectId) {
+    async getByLobby(lobby_id: Ms.Types.ObjectId, user_id: Ms.Types.ObjectId) {
         let game = await this.gameModel.findOne({lobby_id}).exec();
         if(!game) return new UnauthorizedException('No game find.');
+
+        game.hands = game.hands.map((hand) => {
+            let newHand = hand;
+            if(newHand.user_id != user_id) newHand.cards = null;
+            return newHand;
+        })
         return game;
     }
 

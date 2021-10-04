@@ -37,6 +37,8 @@ type Game {
 }
 
 type Hand {
+  cards: [Card!]
+  left: Float!
   user_id: String!
   user_login: String!
 }

@@ -14,6 +14,11 @@ export class Hand {
     @Prop()
     user_login: string;
 
+    @Field(() => Number)
+    @Prop()
+    left: number
+
+    @Field(() => [Card], { nullable: true })
     @Prop()
     cards: Card[]
 }

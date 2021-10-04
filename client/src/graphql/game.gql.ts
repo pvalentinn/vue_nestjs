@@ -19,7 +19,12 @@ export const GET_GAME = gql`
             },
             hands {
                 user_id,
-                user_login
+                user_login,
+                left,
+                cards {
+                    color,
+                    value
+                }
             }
         }
     }
