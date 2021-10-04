@@ -30,16 +30,15 @@ scalar DateTime
 
 type Game {
   current_color: String!
-  deck: [Card!]!
   hands: [Hand!]!
   lobby_id: String!
-  pile: [Card!]
+  pile: [Card!]!
   turn: Hand!
 }
 
 type Hand {
-  cards: [Card!]!
   user_id: String!
+  user_login: String!
 }
 
 input ListLobbyInput {
@@ -84,6 +83,7 @@ type Mutation {
 
 type Query {
   chat(id: String!): Chat!
+  game(lobby_id: String!): Game!
   lobbies(filters: ListLobbyInput): [Lobby!]!
   lobby(id: String!): Lobby!
   me: User!

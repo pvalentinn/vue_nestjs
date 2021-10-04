@@ -1,5 +1,5 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { Inject, UseGuards } from '@nestjs/common';
+import { Args, Query, Mutation, Resolver } from '@nestjs/graphql';
+import { Inject, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Schema as Ms } from 'mongoose';
 import { PubSub } from 'graphql-subscriptions';
 
@@ -26,5 +26,13 @@ export class GameResolver {
         let { lobby, game } = await this.gameService.create(lobby_id) as { game: GameDocument, lobby: LobbyDocument };
         this.pubSub.publish('updateLobby', lobby);
         return game;
+    }
+
+    @Query(() => Game, { name: 'game' })
+    @UseGuards(JwtAuthGuard)
+    getGame(
+        @Args('lobby_id', { type: () => String }) lobby_id: Ms.Types.ObjectId
+    ) {
+        return this.gameService.getByLobby(lobby_id);
     }
 }

@@ -25,16 +25,33 @@
 </template>
 
 <script setup lang="ts">
-import { useMutation } from '@vue/apollo-composable';
+import { useLazyQuery, useMutation, useQuery } from '@vue/apollo-composable';
 import { ref, onMounted } from 'vue';
 import Cookies from "js-cookie";
 import jwt_decode from 'jwt-decode';
 
 import { UPDATE_TOKEN } from '../graphql/user.gql';
+import { GET_GAME } from '../graphql/game.gql';
 // import PersonSVG from './PersonSVG.vue';
 
 const { mutate: updateToken } = useMutation(UPDATE_TOKEN);
+const { onResult, load: getGame } = useLazyQuery(GET_GAME);
 let me = ref<{ sub: string, lobby: string, roles: string[], state: string } | null>(null);
+let game = ref<{ 
+	current_color: string, 
+	deck: { color: string, value: string }, 
+	pile: { color: string, value: string }, 
+	turn: { user_id: string }, 
+	hands: { 
+		user_id: string, 
+		cards: { color: string, value: string }
+	} 
+} | null>(null);
+
+onResult((res: any) => {
+	console.log(res);
+	game.value = res;
+})
 
 let topdiv = ref<HTMLDivElement>();
 let n = 1;
@@ -55,6 +72,10 @@ onMounted(async () => {
     }
 	await updateToken({ token: Cookies.get('token') });
 	me.value = jwt_decode(Cookies.get('token')!);
+	getGame(GET_GAME, { lobby_id: me.value?.lobby });
+
+	
+
 	console.log(me.value);
 })
 

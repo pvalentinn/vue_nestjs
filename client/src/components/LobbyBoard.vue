@@ -74,10 +74,12 @@ updateToken({ token: Cookies.get('token') }).then(() => emit('update:me'));
 
 let changeState = async (force: boolean = false) => {
     try {
-        let state = force ? "UNREADY" : props.me?.state == "unready" ? "READY" : "UNREADY";
-        if (force && props.me!.state == "UNREADY") return;
-        else {
-            await updateUserState({ state });
+        if(props.me?.state != 'in_game') {
+            let state = force ? "UNREADY" : props.me?.state == "unready" ? "READY" : "UNREADY";
+            if (force && props.me!.state == "UNREADY") return;
+            else {
+                await updateUserState({ state });
+            }
         }
     } catch (e: any) {
         console.log("Error in changeStatus() : " + e.message);
