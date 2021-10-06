@@ -16,8 +16,9 @@
 					{{ game.pile[game.pile.length - 1].value }}
 				</div>
                 <div class="hand">
-					<div class="card" v-for="[i, card] of game?.hands.find((e) => e.user_id == me?.sub)!.cards?.entries()" :style="{ backgroundColor: card.color, zIndex: 10 + i }">
-						{{ card.value }}
+					<div class="card" v-for="[i, card] of game?.hands.find((e) => e.user_id == me?.sub)!.cards?.entries()">
+						<!-- {{ card.value }} -->
+						<UnoCardSVG :color="card.color" :value="card.value" />
 					</div>
                 </div>
             </div>
@@ -33,6 +34,7 @@ import jwt_decode from 'jwt-decode';
 
 import { UPDATE_TOKEN } from '../graphql/user.gql';
 import { GET_GAME } from '../graphql/game.gql';
+import UnoCardSVG from '../components/svg/UnoCardSVG.vue';
 
 const { mutate: updateToken } = useMutation(UPDATE_TOKEN);
 const { onResult, load: getGame } = useLazyQuery(GET_GAME);
