@@ -103,8 +103,8 @@ export const PLAY_CARD = gql`
 `
 
 export const UPDATE_GAME = gql`
-    subscription updateGame($id: String!){
-        updateGame(id: $id) {
+    subscription updateGame($id: String!, $user_id: String!){
+        updateGame(id: $id, user_id: $user_id) {
             current_color,
             pile {
                 color,

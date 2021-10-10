@@ -3,7 +3,6 @@
         <div class="circle" v-if="game">
             <div class="top">
                 <div class='opponent' v-for="hand of game?.hands.filter((e) => e.user_id != me?.sub)">
-                    <!-- <PersonSVG width='50'/> -->
                     <h2>{{ hand.user_login }}</h2>
                     <div class="opponent_card">
 						{{ hand.left }}
@@ -16,16 +15,13 @@
 					{{ game.pile[game.pile.length - 1].value }}
 				</div>
                 <div class="hand">
-					<!-- <div class="card" v-for="[i, card] of game?.hands.find((e) => e.user_id == me?.sub)!.cards?.entries()">
-						<UnoCardSVG :color="card.color" :value="card.value" />
-					</div> -->
 					<UnoCardSVG 
-						v-for="[i, card] of game?.hands.find((e) => e.user_id == me?.sub)!.cards?.entries()" 
+						v-for="(card, index) in mine" 
 						:color="card.color" 
 						:value="card.value" 
 						:game="game" 
 						:me="me"
-						:index="i - 1" 
+						:index="index" 
 					/>
                 </div>
             </div>
@@ -47,7 +43,7 @@ import UnoCardSVG from '../components/svg/UnoCardSVG.vue';
 let { params: { id } }: any = useRoute();
 const { mutate: updateToken } = useMutation(UPDATE_TOKEN);
 const { onResult, load: getGame } = useLazyQuery(GET_GAME);
-const { onResult: updateGame } = useSubscription(UPDATE_GAME, { id });
+const { onResult: updateGame } = useSubscription(UPDATE_GAME, { id, user_id: jwt_decode<any>(Cookies.get('token')!).sub });
 
 let me = ref<{ sub: string, lobby: string, roles: string[], state: string } | null>(null);
 let game = ref<{ 
@@ -62,10 +58,12 @@ let game = ref<{
 	}[]
 } | null>(null);
 
+let mine = ref<{ color: string, value: string }[] | null>(null);
+
 onResult((res: any) => {
-	console.log(res);
 	if(res.data) {
 		game.value = res.data.game;
+		mine.value = res.data.game.hands.find((e: any) => e.user_id == me.value!.sub)!.cards;
 	}
 })
 
@@ -94,7 +92,7 @@ onUpdated(() => {
 
 updateGame((res) => {
 	game.value = res.data.updateGame;
-	console.log(game.value);
+	mine.value = res.data.updateGame.hands.find((e: any) => e.user_id == me.value!.sub)!.cards;
 })
 
 </script>
@@ -102,7 +100,7 @@ updateGame((res) => {
 
 <style scoped>
 .container {
-	height: 80vh;
+	height: 100vh;
 	width: 100%;
 	padding: 20px;
 }
@@ -110,8 +108,8 @@ updateGame((res) => {
 .circle {
 	border: 5px solid grey;
 	border-radius: 500%;
-	height: 70vw;
-	width: 70%;
+	height: 900px;
+	width: 900px;
 	margin: auto;
 	position: relative;
 }

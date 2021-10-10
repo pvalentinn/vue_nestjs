@@ -71,14 +71,11 @@ type Message {
 
 type Mutation {
   addMessage(AddMessageInput: AddMessageInput!): Chat!
-  changeTurn: Game!
   createGame: Game!
   createLobby: Lobby!
   createUser(createUserInput: CreateUserInput!): User!
-  draw(number: Float!): Game!
   joinLobby(lobby_id: String!): Lobby!
   leaveLobby(id: String): Lobby
-  passTurn: Game!
   playCard(index: Float!): Game!
   removeLobby(id: String!): Lobby!
   removeUser: User!
@@ -105,7 +102,7 @@ enum Role {
 
 type Subscription {
   updateChat(lobby_id: String!): Chat!
-  updateGame(id: String!): Game!
+  updateGame(id: String!, user_id: String!): Game!
   updateLobby(id: String!): Lobby!
 }
 

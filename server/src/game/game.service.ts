@@ -1,7 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Schema as Ms, Types } from 'mongoose';
-import { PayloadType } from 'src/auth/jwt.payload';
+import { Model, Schema as Ms, Types, Document } from 'mongoose';
 import { Lobby, LobbyDocument } from 'src/lobby/lobby.model';
 import { State, User, UserDocument } from 'src/user/user.model';
 import { Card, Hand, Game, GameDocument } from './game.model';
@@ -115,17 +114,21 @@ export class GameService {
         return deck;
     }
 
-    async draw(game: GameDocument, n: number){
+    async draw(game: Game & Document & { _id: any; }, n: number){
         try {
             let { user_id } = game.turn;
-            let hand = game.hands.indexOf(game.hands.find(hand => hand.user_id == user_id));
+            let hand = game.hands.indexOf(game.hands.find(hand => {
+                let a = hand.user_id as unknown as Types.ObjectId;
+                let b = user_id as unknown as Types.ObjectId;
+                return a.equals(b)
+            }));
 
             for(let i = 0; i < n; i++) {
                 if(!game.deck.length) game.deck = this.createDeck();
                 game.hands[hand].cards.push(game.deck.shift());
             }
 
-            return await game.save();
+            return game;
 
         } catch(e: any){
             console.error(e.message);
@@ -133,18 +136,22 @@ export class GameService {
         }
     }
 
-    async passTurn(game: GameDocument) {
+    async passTurn(game: Game & Document & { _id: any; }) {
         try {
             let { user_id, direction } = game.turn;
-            let hand = game.hands.indexOf(game.hands.find(hand => hand.user_id == user_id));
+            let hand = game.hands.indexOf(game.hands.find(hand => {
+                let a = hand.user_id as unknown as Types.ObjectId;
+                let b = user_id as unknown as Types.ObjectId;
+                return a.equals(b)
+            }));
 
             let turn = hand + direction;
-            console.log(turn);
 
             if(turn < 0) turn = game.hands.length - 1;
             else if(turn == game.hands.length) turn = 0;
-
-            return await game.save();
+            
+            game.turn.user_id = game.hands[turn].user_id;
+            return game;
 
         } catch(e: any){
             console.error(e.message);
@@ -152,12 +159,12 @@ export class GameService {
         }
     }
 
-    async changeTurnDirection(game: GameDocument) {
+    async changeTurnDirection(game: Game & Document & { _id: any; }) {
         try {
             let { direction } = game.turn;
             game.turn.direction = direction ? -1 : 1;
 
-            return await this.passTurn(await game.save());
+            return await this.passTurn(game);
 
         } catch(e: any){
             console.error(e.message);
@@ -165,8 +172,11 @@ export class GameService {
         }
     }
 
-    async playCard(game: GameDocument, index: number) {
+    async playCard(lobby_id: Ms.Types.ObjectId, index: number) {
         try {
+            let game = await this.gameModel.findOne({lobby_id}).exec();
+            if(!game) return new UnauthorizedException('No game find.');
+
 
             let { user_id } = game.turn;
             let hand = game.hands.indexOf(game.hands.find(hand => {
@@ -175,43 +185,49 @@ export class GameService {
                 return a.equals(b)
             }));
             let card = game.hands[hand].cards.splice(index, 1)[0];
-            console.log(card);
+            // console.log(game.hands[hand].cards);
 
             game.pile.push(card);
             game.current_color = card.color;
 
+            console.log(game.hands[hand].cards);
+
             switch(card.value) {
                 case "reverse":
-                    game = await this.changeTurnDirection(await game.save());
+                    await this.changeTurnDirection(game);
                 break;
                 case "skip":
-                    game = await this.passTurn(await game.save());
-                    game = await this.passTurn(game);
+                    await this.passTurn(game);
+                    await this.passTurn(game);
                 break;
                 case "draw2":
-                    game = await this.passTurn(await game.save());
+                    await this.passTurn(game);
 
                     hand = game.hands.indexOf(game.hands.find(hand => hand.user_id == game.turn.user_id));
                     if(!game.hands[hand].cards.find(card => card.value == 'draw2')) {
-                        game = await this.draw(game, 2);
-                        game = await this.passTurn(game);
+                        await this.draw(game, 2);
+                        await this.passTurn(game);
                     }
                 break;
                 case "draw4":
-                    game = await this.passTurn(await game.save());
+                    await this.passTurn(game);
 
                     hand = game.hands.indexOf(game.hands.find(hand => hand.user_id == game.turn.user_id));
                     if(!game.hands[hand].cards.find(card => card.value == 'draw4')) {
-                        game = await this.draw(game, 4);
-                        game = await this.passTurn(game);
+                        await this.draw(game, 4);
+                        await this.passTurn(game);
                     }
                 break;
                 default:
+                    // console.log(game.hands[hand].cards, game.turn);
+                    await this.passTurn(game);
+                    // console.log(game.hands[hand].cards, game.turn);
                 break;
             }
 
-
-            return game.save();
+            // console.log(game.hands[hand].cards);
+            await game.updateOne(game);
+            return game;
 
         } catch(e: any){
             console.error(e.message);

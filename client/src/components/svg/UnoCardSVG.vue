@@ -27,9 +27,12 @@
 
     const { mutate: playCard } = useMutation(PLAY_CARD);
 
+
     let props = defineProps<{ index: number, color: string, value: string, game: any, me: any }>();
     let newColor: string;
     let newValue: string;
+
+    let playable: boolean = (props.game.current_color == props.color || props.color == "black" || props.game.pile[props.game.pile.length - 1].value == props.value);
 
     switch(props.color) {
         case 'red': 
@@ -71,17 +74,11 @@
     }
 
     let handleCard = async () => {
-        let { index, game, me, color } = props;
+        let { index, game, me } = props;
 
-        if(game.turn.user_id == me.sub) {
-            if(game.current_color == color) {
-                console.log('can play', index);
-                
-                await playCard({ index });
-
-            } else {
-                console.log('nope')
-            }
+        if(game.turn.user_id == me.sub && playable) {
+            console.log('can play', index);
+            await playCard({ index });
         }
     }
 

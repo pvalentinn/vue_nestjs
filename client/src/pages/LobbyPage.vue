@@ -106,7 +106,7 @@ getLobbyError((e) => {
 })
 </script>
 
-<style>
+<style scoped>
 .container {
     height: 100vh;
     padding: 25px;
