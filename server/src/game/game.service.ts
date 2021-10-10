@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Schema as Ms } from 'mongoose';
+import { PayloadType } from 'src/auth/jwt.payload';
 import { Lobby, LobbyDocument } from 'src/lobby/lobby.model';
 import { State, User, UserDocument } from 'src/user/user.model';
 import { Card, Hand, Game, GameDocument } from './game.model';
@@ -51,7 +52,10 @@ export class GameService {
             }, [])
     
             game.current_color = game.pile[game.pile.length - 1].color;
-            game.turn = game.hands[Math.floor(Math.random() * game.hands.length)];
+            game.turn = {
+                direction: 1,
+                user_id: game.hands[Math.floor(Math.random() * game.hands.length)].user_id
+            };
             await game.save();
 
             return { lobby, game };
@@ -110,4 +114,54 @@ export class GameService {
         deck.sort(() => Math.random() - 0.5);
         return deck;
     }
+
+    async draw(game: GameDocument, n: number){
+        try {
+            let { user_id } = game.turn;
+            let hand = game.hands.indexOf(game.hands.find(hand => hand.user_id == user_id));
+
+            for(let i = 0; i < n; i++) {
+                game.hands[hand].cards.push(game.deck.shift());
+            }
+
+            return await game.save();
+
+        } catch(e: any){
+            console.error(e.message);
+            throw new Error(e.message);
+        }
+    }
+
+    async passTurn(game: GameDocument) {
+        try {
+            let { user_id, direction } = game.turn;
+            let hand = game.hands.indexOf(game.hands.find(hand => hand.user_id == user_id));
+
+            let turn = hand + direction;
+            console.log(turn);
+
+            if(turn < 0) turn = game.hands.length - 1;
+            else if(turn == game.hands.length) turn = 0;
+
+            return await game.save();
+
+        } catch(e: any){
+            console.error(e.message);
+            throw new Error(e.message);
+        }
+    }
+
+    async changeTurnDirection(game: GameDocument) {
+        try {
+            let { direction } = game.turn;
+            game.turn.direction = direction ? -1 : 1;
+
+            return await this.passTurn(await game.save());
+
+        } catch(e: any){
+            console.error(e.message);
+            throw new Error(e.message);
+        }
+    }
+
 }

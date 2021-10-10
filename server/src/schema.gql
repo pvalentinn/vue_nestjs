@@ -33,7 +33,7 @@ type Game {
   hands: [Hand!]!
   lobby_id: String!
   pile: [Card!]!
-  turn: Hand!
+  turn: Turn!
 }
 
 type Hand {
@@ -71,11 +71,14 @@ type Message {
 
 type Mutation {
   addMessage(AddMessageInput: AddMessageInput!): Chat!
-  createGame(lobby_id: String!): Game!
+  changeTurn: Game!
+  createGame: Game!
   createLobby: Lobby!
   createUser(createUserInput: CreateUserInput!): User!
+  draw(number: Float!): Game!
   joinLobby(lobby_id: String!): Lobby!
   leaveLobby(id: String): Lobby
+  passTurn: Game!
   removeLobby(id: String!): Lobby!
   removeUser: User!
   updateToken(token: String!): Boolean!
@@ -85,7 +88,7 @@ type Mutation {
 
 type Query {
   chat(id: String!): Chat!
-  game(lobby_id: String!): Game!
+  game: Game!
   lobbies(filters: ListLobbyInput): [Lobby!]!
   lobby(id: String!): Lobby!
   me: User!
@@ -102,6 +105,11 @@ enum Role {
 type Subscription {
   updateChat(lobby_id: String!): Chat!
   updateLobby(id: String!): Lobby!
+}
+
+type Turn {
+  direction: Float!
+  user_id: String!
 }
 
 input UpdateUserInput {

@@ -69,7 +69,7 @@ updateLobby(async result => {
                     count.value = count.value - 1;
                     if(count.value == 0) {
                         clearInterval(interval.value);
-                        if(me.value?.roles.find((role) => role == "owner")) await createGame({ lobby_id: me.value.lobby });
+                        if(me.value?.roles.find((role) => role == "owner")) await createGame();
                     }
                 }, 1000)
             } else {

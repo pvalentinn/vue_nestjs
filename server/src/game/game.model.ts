@@ -37,6 +37,15 @@ export class Card {
     value: string;
 }
 
+@ObjectType()
+export class Turn {
+    @Field(() => String)
+    user_id: Ms.Types.ObjectId
+
+    @Field()
+    direction: -1 | 1
+}
+
 
 @ObjectType()
 @Schema({ timestamps: true })
@@ -56,9 +65,9 @@ export class Game {
     @Prop()
     pile: Card[];
 
-    @Field(() => Hand)
+    @Field(() => Turn)
     @Prop()
-    turn: Hand;
+    turn: Turn;
 
     @Field(() => String)
     @Prop()

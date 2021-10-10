@@ -16,10 +16,10 @@
 					{{ game.pile[game.pile.length - 1].value }}
 				</div>
                 <div class="hand">
-					<div class="card" v-for="[i, card] of game?.hands.find((e) => e.user_id == me?.sub)!.cards?.entries()">
-						<!-- {{ card.value }} -->
+					<!-- <div class="card" v-for="[i, card] of game?.hands.find((e) => e.user_id == me?.sub)!.cards?.entries()">
 						<UnoCardSVG :color="card.color" :value="card.value" />
-					</div>
+					</div> -->
+					<UnoCardSVG v-for="[i, card] of game?.hands.find((e) => e.user_id == me?.sub)!.cards?.entries()" :color="card.color" :value="card.value" />
                 </div>
             </div>
         </div>
@@ -62,7 +62,7 @@ onResult((res: any) => {
 onMounted(async() => {
 	await updateToken({ token: Cookies.get('token') });
 	me.value = jwt_decode(Cookies.get('token')!);
-	getGame(GET_GAME, { lobby_id: me.value?.lobby });
+	getGame(GET_GAME);
 })
 
 onUpdated(() => {

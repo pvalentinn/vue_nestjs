@@ -22,9 +22,9 @@ export class GameResolver {
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Roles(Role.Owner)
     async createGame( 
-        @Args('lobby_id', { type: () => String }) lobby_id: Ms.Types.ObjectId
+        @Context() { req }: ContextType
     ) {
-        let { lobby, game } = await this.gameService.create(lobby_id) as { game: GameDocument, lobby: LobbyDocument };
+        let { lobby, game } = await this.gameService.create(req.user.lobby) as { game: GameDocument, lobby: LobbyDocument };
         this.pubSub.publish('updateLobby', lobby);
         return game;
     }
@@ -32,9 +32,36 @@ export class GameResolver {
     @Query(() => Game, { name: 'game' })
     @UseGuards(JwtAuthGuard)
     getGame(
-        @Args('lobby_id', { type: () => String }) lobby_id: Ms.Types.ObjectId,
         @Context() { req }: ContextType
     ) {
-        return this.gameService.getByLobby(lobby_id, req.user.sub);
+        return this.gameService.getByLobby(req.user.lobby, req.user.sub);
+    }
+
+    @Mutation(() => Game)
+    @UseGuards(JwtAuthGuard)
+    async draw( 
+        @Args('number') n: number,
+        @Context() { req }: ContextType
+    ) {
+        let game = await this.gameService.getByLobby(req.user.lobby, req.user.sub);
+        return await this.gameService.draw(game as GameDocument, n);
+    }
+
+    @Mutation(() => Game)
+    @UseGuards(JwtAuthGuard)
+    async passTurn( 
+        @Context() { req }: ContextType
+    ) {
+        let game = await this.gameService.getByLobby(req.user.lobby, req.user.sub);
+        return await this.gameService.passTurn(game as GameDocument);
+    }
+
+    @Mutation(() => Game)
+    @UseGuards(JwtAuthGuard)
+    async changeTurn( 
+        @Context() { req }: ContextType
+    ) {
+        let game = await this.gameService.getByLobby(req.user.lobby, req.user.sub);
+        return await this.gameService.changeTurnDirection(game as GameDocument);
     }
 }
