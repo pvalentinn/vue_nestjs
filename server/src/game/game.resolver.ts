@@ -1,4 +1,4 @@
-import { Args, Query, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Query, Mutation, Resolver, Subscription } from '@nestjs/graphql';
 import { Inject, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { Schema as Ms } from 'mongoose';
 import { PubSub } from 'graphql-subscriptions';
@@ -64,4 +64,26 @@ export class GameResolver {
         let game = await this.gameService.getByLobby(req.user.lobby, req.user.sub);
         return await this.gameService.changeTurnDirection(game as GameDocument);
     }
+
+    @Mutation(() => Game)
+    @UseGuards(JwtAuthGuard)
+    async playCard(
+        @Args('index') i: number,
+        @Context() { req }: ContextType
+    ) {
+        let game = await this.gameService.playCard(await this.gameService.getByLobby(req.user.lobby, req.user.sub) as GameDocument, i);
+        await this.pubSub.publish('updateGame', game);
+        return game;
+    }
+
+    @Subscription(() => Game,
+	{
+		filter: (payload, variables) => payload.lobby_id == variables.id,
+		resolve: (payload) => payload
+	})
+	updateGame(
+		@Args('id', { type: () => String }) id: Ms.Types.ObjectId,
+	) {
+		return this.pubSub.asyncIterator('updateGame');
+	}
 }

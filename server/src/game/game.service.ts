@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Schema as Ms } from 'mongoose';
+import { Model, Schema as Ms, Types } from 'mongoose';
 import { PayloadType } from 'src/auth/jwt.payload';
 import { Lobby, LobbyDocument } from 'src/lobby/lobby.model';
 import { State, User, UserDocument } from 'src/user/user.model';
@@ -121,6 +121,7 @@ export class GameService {
             let hand = game.hands.indexOf(game.hands.find(hand => hand.user_id == user_id));
 
             for(let i = 0; i < n; i++) {
+                if(!game.deck.length) game.deck = this.createDeck();
                 game.hands[hand].cards.push(game.deck.shift());
             }
 
@@ -157,6 +158,60 @@ export class GameService {
             game.turn.direction = direction ? -1 : 1;
 
             return await this.passTurn(await game.save());
+
+        } catch(e: any){
+            console.error(e.message);
+            throw new Error(e.message);
+        }
+    }
+
+    async playCard(game: GameDocument, index: number) {
+        try {
+
+            let { user_id } = game.turn;
+            let hand = game.hands.indexOf(game.hands.find(hand => {
+                let a = hand.user_id as unknown as Types.ObjectId;
+                let b = user_id as unknown as Types.ObjectId;
+                return a.equals(b)
+            }));
+            let card = game.hands[hand].cards.splice(index, 1)[0];
+            console.log(card);
+
+            game.pile.push(card);
+            game.current_color = card.color;
+
+            switch(card.value) {
+                case "reverse":
+                    game = await this.changeTurnDirection(await game.save());
+                break;
+                case "skip":
+                    game = await this.passTurn(await game.save());
+                    game = await this.passTurn(game);
+                break;
+                case "draw2":
+                    game = await this.passTurn(await game.save());
+
+                    hand = game.hands.indexOf(game.hands.find(hand => hand.user_id == game.turn.user_id));
+                    if(!game.hands[hand].cards.find(card => card.value == 'draw2')) {
+                        game = await this.draw(game, 2);
+                        game = await this.passTurn(game);
+                    }
+                break;
+                case "draw4":
+                    game = await this.passTurn(await game.save());
+
+                    hand = game.hands.indexOf(game.hands.find(hand => hand.user_id == game.turn.user_id));
+                    if(!game.hands[hand].cards.find(card => card.value == 'draw4')) {
+                        game = await this.draw(game, 4);
+                        game = await this.passTurn(game);
+                    }
+                break;
+                default:
+                break;
+            }
+
+
+            return game.save();
 
         } catch(e: any){
             console.error(e.message);

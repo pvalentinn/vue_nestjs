@@ -1,5 +1,5 @@
 <template>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 303 364" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 303 364" fill="none" @click="handleCard">
     <g id="uno card">
         <rect id="back_card" x="43.5" y="8.5" rx="12.5" width="215" height="347" :fill="newColor" stroke="white" stroke-width="10"/>
         <path id="Ellipse 1" d="M234.076 220.268C215.93 259.181 190.128 289.904 163.202 308.168C136.226 326.465 108.544 332.021 86.2111 321.607C63.8785 311.193 50.3405 286.416 47.0173 253.99C43.7003 221.624 50.6504 182.109 68.7956 143.197C86.9409 104.284 112.743 73.5607 139.669 55.2972C166.645 36.9999 194.328 31.4441 216.66 41.858C238.993 52.2718 252.531 77.0491 255.854 109.475C259.171 141.841 252.221 181.355 234.076 220.268Z" :fill="newColor" stroke="white" stroke-width="10"/>
@@ -22,7 +22,12 @@
 </template>
 
 <script lang='ts' setup>
-    let props = defineProps<{ color: string, value: string }>();
+    import { useMutation } from '@vue/apollo-composable';
+    import { PLAY_CARD } from '../../graphql/game.gql';
+
+    const { mutate: playCard } = useMutation(PLAY_CARD);
+
+    let props = defineProps<{ index: number, color: string, value: string, game: any, me: any }>();
     let newColor: string;
     let newValue: string;
 
@@ -63,6 +68,21 @@
         default: 
             newValue = props.value;
         break;
+    }
+
+    let handleCard = async () => {
+        let { index, game, me, color } = props;
+
+        if(game.turn.user_id == me.sub) {
+            if(game.current_color == color) {
+                console.log('can play', index);
+                
+                await playCard({ index });
+
+            } else {
+                console.log('nope')
+            }
+        }
     }
 
 

@@ -19,7 +19,14 @@
 					<!-- <div class="card" v-for="[i, card] of game?.hands.find((e) => e.user_id == me?.sub)!.cards?.entries()">
 						<UnoCardSVG :color="card.color" :value="card.value" />
 					</div> -->
-					<UnoCardSVG v-for="[i, card] of game?.hands.find((e) => e.user_id == me?.sub)!.cards?.entries()" :color="card.color" :value="card.value" />
+					<UnoCardSVG 
+						v-for="[i, card] of game?.hands.find((e) => e.user_id == me?.sub)!.cards?.entries()" 
+						:color="card.color" 
+						:value="card.value" 
+						:game="game" 
+						:me="me"
+						:index="i - 1" 
+					/>
                 </div>
             </div>
         </div>
@@ -27,17 +34,20 @@
 </template>
 
 <script setup lang="ts">
-import { useLazyQuery, useMutation } from '@vue/apollo-composable';
+import { useLazyQuery, useMutation, useSubscription } from '@vue/apollo-composable';
 import { ref, onMounted, onUpdated } from 'vue';
+import { useRoute } from 'vue-router';
 import Cookies from "js-cookie";
 import jwt_decode from 'jwt-decode';
 
 import { UPDATE_TOKEN } from '../graphql/user.gql';
-import { GET_GAME } from '../graphql/game.gql';
+import { GET_GAME, UPDATE_GAME } from '../graphql/game.gql';
 import UnoCardSVG from '../components/svg/UnoCardSVG.vue';
 
+let { params: { id } }: any = useRoute();
 const { mutate: updateToken } = useMutation(UPDATE_TOKEN);
 const { onResult, load: getGame } = useLazyQuery(GET_GAME);
+const { onResult: updateGame } = useSubscription(UPDATE_GAME, { id });
 
 let me = ref<{ sub: string, lobby: string, roles: string[], state: string } | null>(null);
 let game = ref<{ 
@@ -80,6 +90,11 @@ onUpdated(() => {
 		opponents[i].style.setProperty('left', left);
 		opponents[i].style.setProperty('top', top);
 	}
+})
+
+updateGame((res) => {
+	game.value = res.data.updateGame;
+	console.log(game.value);
 })
 
 </script>

@@ -79,6 +79,7 @@ type Mutation {
   joinLobby(lobby_id: String!): Lobby!
   leaveLobby(id: String): Lobby
   passTurn: Game!
+  playCard(index: Float!): Game!
   removeLobby(id: String!): Lobby!
   removeUser: User!
   updateToken(token: String!): Boolean!
@@ -104,6 +105,7 @@ enum Role {
 
 type Subscription {
   updateChat(lobby_id: String!): Chat!
+  updateGame(id: String!): Game!
   updateLobby(id: String!): Lobby!
 }
 
