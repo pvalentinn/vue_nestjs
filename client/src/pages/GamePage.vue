@@ -1,5 +1,6 @@
 <template>
     <div class='container'>
+		<h1 v-if="game?.turn.user_id == me?.sub">Your turn</h1>
         <div class="circle" v-if="game">
             <div class="top">
                 <div class='opponent' v-for="hand of game?.hands.filter((e) => e.user_id != me?.sub)">
@@ -10,12 +11,17 @@
                 </div>
             </div>
             <div class="bottom">
-				<div class="card deck"></div>
-				<div class="card pile" :style="{backgroundColor: game.pile[game.pile.length - 1].color}">
-					{{ game.pile[game.pile.length - 1].value }}
+				<div class="card deck" @click="handDeck"></div>
+				<div class="pile">
+					<UnoCardSVG 
+						v-if="!load"
+						:color="game.pile[game.pile.length - 1].color" 
+						:value="game.pile[game.pile.length - 1].value" 
+					/>
 				</div>
                 <div class="hand">
 					<UnoCardSVG 
+						v-if="!load"
 						v-for="(card, index) in mine" 
 						:color="card.color" 
 						:value="card.value" 
@@ -37,11 +43,12 @@ import Cookies from "js-cookie";
 import jwt_decode from 'jwt-decode';
 
 import { UPDATE_TOKEN } from '../graphql/user.gql';
-import { GET_GAME, UPDATE_GAME } from '../graphql/game.gql';
+import { DRAW_CARD, GET_GAME, UPDATE_GAME } from '../graphql/game.gql';
 import UnoCardSVG from '../components/svg/UnoCardSVG.vue';
 
 let { params: { id } }: any = useRoute();
 const { mutate: updateToken } = useMutation(UPDATE_TOKEN);
+const { mutate: drawCard } = useMutation(DRAW_CARD);
 const { onResult, load: getGame } = useLazyQuery(GET_GAME);
 const { onResult: updateGame } = useSubscription(UPDATE_GAME, { id, user_id: jwt_decode<any>(Cookies.get('token')!).sub });
 
@@ -59,6 +66,7 @@ let game = ref<{
 } | null>(null);
 
 let mine = ref<{ color: string, value: string }[] | null>(null);
+let load = ref<boolean>(false)
 
 onResult((res: any) => {
 	if(res.data) {
@@ -88,12 +96,21 @@ onUpdated(() => {
 		opponents[i].style.setProperty('left', left);
 		opponents[i].style.setProperty('top', top);
 	}
+	load.value = false;
 })
 
 updateGame((res) => {
+	load.value = true;
 	game.value = res.data.updateGame;
 	mine.value = res.data.updateGame.hands.find((e: any) => e.user_id == me.value!.sub)!.cards;
-})
+});
+
+let handDeck = async () => {
+	if(game.value?.turn.user_id == me.value?.sub) {
+		console.log("pioche");
+		await drawCard();
+	}
+}
 
 </script>
 

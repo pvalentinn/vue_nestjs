@@ -74,6 +74,7 @@ type Mutation {
   createGame: Game!
   createLobby: Lobby!
   createUser(createUserInput: CreateUserInput!): User!
+  drawCard: Game!
   joinLobby(lobby_id: String!): Lobby!
   leaveLobby(id: String): Lobby
   playCard(index: Float!): Game!

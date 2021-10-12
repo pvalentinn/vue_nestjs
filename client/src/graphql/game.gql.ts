@@ -30,74 +30,17 @@ export const GET_GAME = gql`
     }
 `;
 
-export const DRAW = gql`
-    mutation draw($number: Float!){
-        draw(number: $number) {
-            current_color,
-            pile {
-                color,
-                value
-            },
-            turn {
-                user_id
-            },
-            hands {
-                user_id,
-                user_login,
-                left,
-                cards {
-                    color,
-                    value
-                }
-            }
-        }
-    }
-`;
-
-export const PASS_TURN = gql`
-    mutation passTurn {
-        passTurn {
-            current_color,
-            pile {
-                color,
-                value
-            },
-            turn {
-                user_id
-            },
-            hands {
-                user_id,
-                user_login,
-                left,
-                cards {
-                    color,
-                    value
-                }
-            }
+export const DRAW_CARD = gql`
+    mutation drawCard {
+        drawCard {
+            current_color
         }
     }
 `
-
 export const PLAY_CARD = gql`
     mutation playCard($index: Float!){
         playCard(index: $index) {
-            current_color,
-            pile {
-                color,
-                value
-            },
-            turn {
-                user_id
-            },
-            hands {
-                user_id,
-                user_login,
-                left,
-                cards {
-                    color,
-                    value
-                }
-            }
+            current_color
         }
     }
 `

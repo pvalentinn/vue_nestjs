@@ -64,15 +64,9 @@ export class GameService {
         }
     }
 
-    async getByLobby(lobby_id: Ms.Types.ObjectId, user_id: Ms.Types.ObjectId) {
+    async getByLobby(lobby_id: Ms.Types.ObjectId) {
         let game = await this.gameModel.findOne({lobby_id}).exec();
         if(!game) return new UnauthorizedException('No game find.');
-
-        game.hands = game.hands.map((hand) => {
-            let newHand = hand;
-            if(newHand.user_id != user_id) newHand.cards = null;
-            return newHand;
-        })
         return game;
     }
 
@@ -126,6 +120,7 @@ export class GameService {
             for(let i = 0; i < n; i++) {
                 if(!game.deck.length) game.deck = this.createDeck();
                 game.hands[hand].cards.push(game.deck.shift());
+                game.hands[hand].left++;
             }
 
             return game;
@@ -177,7 +172,6 @@ export class GameService {
             let game = await this.gameModel.findOne({lobby_id}).exec();
             if(!game) return new UnauthorizedException('No game find.');
 
-
             let { user_id } = game.turn;
             let hand = game.hands.indexOf(game.hands.find(hand => {
                 let a = hand.user_id as unknown as Types.ObjectId;
@@ -185,6 +179,9 @@ export class GameService {
                 return a.equals(b)
             }));
             let card = game.hands[hand].cards.splice(index, 1)[0];
+            if(!(game.current_color == card.color || card.color == "black" || game.pile[game.pile.length - 1].value == card.value)) 
+            throw new UnauthorizedException("Cant play this card");
+            game.hands[hand].left--;
             // console.log(game.hands[hand].cards);
 
             game.pile.push(card);
