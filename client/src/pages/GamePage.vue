@@ -11,16 +11,18 @@
                 </div>
             </div>
             <div class="bottom">
-				<div class="card deck" @click="handDeck"></div>
+				<div class="deck" @click="handDeck">
+					<UnoBackCardSVG />
+				</div>
 				<div class="pile">
-					<UnoCardSVG 
+					<GameCard 
 						v-if="!load"
 						:color="game.pile[game.pile.length - 1].color" 
 						:value="game.pile[game.pile.length - 1].value" 
 					/>
 				</div>
                 <div class="hand">
-					<UnoCardSVG 
+					<GameCard 
 						v-if="!load"
 						v-for="(card, index) in mine" 
 						:color="card.color" 
@@ -44,7 +46,8 @@ import jwt_decode from 'jwt-decode';
 
 import { UPDATE_TOKEN } from '../graphql/user.gql';
 import { DRAW_CARD, GET_GAME, UPDATE_GAME } from '../graphql/game.gql';
-import UnoCardSVG from '../components/svg/UnoCardSVG.vue';
+import GameCard from '../components/GameCard.vue';
+import UnoBackCardSVG from '../components/svg/UnoBackCardSVG.vue';
 
 let { params: { id } }: any = useRoute();
 const { mutate: updateToken } = useMutation(UPDATE_TOKEN);
