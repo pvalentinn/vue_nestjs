@@ -47,9 +47,10 @@ export class GameResolver {
     @UseGuards(JwtAuthGuard)
     async playCard(
         @Args('index') i: number,
+        @Args('color', { nullable: true }) color: string,
         @Context() { req }: ContextType
     ) {
-        let game = await this.gameService.playCard(req.user.lobby, i);
+        let game = await this.gameService.playCard(req.user.lobby, i, color);
         await this.pubSub.publish('updateGame', game);
         return game;
     }

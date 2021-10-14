@@ -159,6 +159,7 @@ export class GameService {
             let { direction } = game.turn;
             game.turn.direction = direction ? -1 : 1;
 
+            if(game.hands.filter(hand => hand.cards.length).length == 2) return game;
             return await this.passTurn(game);
 
         } catch(e: any){
@@ -167,7 +168,7 @@ export class GameService {
         }
     }
 
-    async playCard(lobby_id: Ms.Types.ObjectId, index: number) {
+    async playCard(lobby_id: Ms.Types.ObjectId, index: number, color?: string) {
         try {
             let game = await this.gameModel.findOne({lobby_id}).exec();
             if(!game) return new UnauthorizedException('No game find.');
@@ -183,6 +184,8 @@ export class GameService {
             throw new UnauthorizedException("Cant play this card");
             game.hands[hand].left--;
             // console.log(game.hands[hand].cards);
+            
+            if(color && card.color == "black") card.color = color;
 
             game.pile.push(card);
             game.current_color = card.color;
@@ -201,18 +204,24 @@ export class GameService {
                     await this.passTurn(game);
 
                     hand = game.hands.indexOf(game.hands.find(hand => hand.user_id == game.turn.user_id));
+                    game.stack = game.stack + 2
+
                     if(!game.hands[hand].cards.find(card => card.value == 'draw2')) {
-                        await this.draw(game, 2);
+                        await this.draw(game, game.stack);
                         await this.passTurn(game);
+                        game.stack = 0;
                     }
                 break;
                 case "draw4":
                     await this.passTurn(game);
 
                     hand = game.hands.indexOf(game.hands.find(hand => hand.user_id == game.turn.user_id));
+                    game.stack = game.stack + 4
+
                     if(!game.hands[hand].cards.find(card => card.value == 'draw4')) {
-                        await this.draw(game, 4);
+                        await this.draw(game, game.stack);
                         await this.passTurn(game);
+                        game.stack = 0;
                     }
                 break;
                 default:

@@ -31,7 +31,6 @@
 
 <script lang='ts' setup>
     let props = defineProps<{ color: string, value: string }>();
-    console.log("basic");
 </script>
 
 <style scoped>

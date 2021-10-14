@@ -71,7 +71,10 @@ export class Game {
 
     @Field(() => String)
     @Prop()
-    current_color: String
+    current_color: string
+
+    @Prop({ default: 0 })
+    stack: number;
 }
 
 export type GameDocument = Game & Document;

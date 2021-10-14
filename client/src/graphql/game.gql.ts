@@ -38,8 +38,8 @@ export const DRAW_CARD = gql`
     }
 `
 export const PLAY_CARD = gql`
-    mutation playCard($index: Float!){
-        playCard(index: $index) {
+    mutation playCard($index: Float!, $color: String)  {
+        playCard(index: $index, color: $color) {
             current_color
         }
     }

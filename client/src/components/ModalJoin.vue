@@ -35,7 +35,7 @@ let submit = async (e: Event) => {
 }
 </script>
 
-<style scoped>
+<style>
 .modal {
     width: 100%;
     height: 100vh;
@@ -63,7 +63,7 @@ let submit = async (e: Event) => {
     width: 100%;
 }
 
-form {
+.join_form {
     /* height: 80%; */
     width: 100%;
     display: flex;
@@ -73,7 +73,7 @@ form {
     flex-wrap: wrap;
 }
 
-form > input {
+.join_form > input {
     height: 50px;
     display: inline-flex;
 }

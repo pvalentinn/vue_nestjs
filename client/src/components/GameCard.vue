@@ -2,6 +2,7 @@
     <UnoColorCardSVG 
         v-if="newValue === 'color'"
         @click="handleCard"
+        :color="newColor" 
         :class="playable && 'playable'" 
     />
     <UnoUniversalCardSVG
@@ -11,6 +12,10 @@
         @click="handleCard"
         :class="playable && 'playable'" 
     />
+    <GameModalColor 
+        v-if="show"
+        @selectColor="handleBlackCard"
+    />
 </template>
 
 <script setup lang="ts">
@@ -19,12 +24,15 @@
     import { PLAY_CARD } from '../graphql/game.gql';
     import UnoColorCardSVG from './svg/UnoColorCardSVG.vue';
     import UnoUniversalCardSVG from './svg/UnoUniversalCardSVG.vue';
+    import GameModalColor from './GameModalColor.vue';
 
     const { mutate: playCard } = useMutation(PLAY_CARD);
 
+    let emit = defineEmits(['chooseColor'])
     let props = defineProps<{ index?: number, color: string, value: string, game?: any, me?: any }>();
     let newColor = ref<string>('');
     let newValue = ref<string>('');
+    let show = ref<boolean>(false);
 
     let playable: boolean = (props.game?.current_color == props.color || props.color == "black" || props.game?.pile[props.game.pile.length - 1].value == props.value);
 
@@ -74,11 +82,24 @@
 
         if(game.turn.user_id == me.sub && playable) {
             console.log('can play', index);
-            await playCard({ index });
+
+            if(props.color == "black") {
+                show.value = true;
+            } else {
+                await playCard({ index });
+            }
         } else if (!playable) {
-            console.log(44444)
+            console.log("unplayable")
+        } else {
+            console.log('not your turn');
         }
     }
+
+    let handleBlackCard = async (color: string) => {
+        show.value = false;
+        await playCard({ index: props.index, color });
+    }
+
 </script>
 
 <style scoped>

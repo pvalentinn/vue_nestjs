@@ -77,7 +77,7 @@ type Mutation {
   drawCard: Game!
   joinLobby(lobby_id: String!): Lobby!
   leaveLobby(id: String): Lobby
-  playCard(index: Float!): Game!
+  playCard(color: String, index: Float!): Game!
   removeLobby(id: String!): Lobby!
   removeUser: User!
   updateToken(token: String!): Boolean!
