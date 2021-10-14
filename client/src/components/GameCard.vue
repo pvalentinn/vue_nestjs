@@ -1,19 +1,15 @@
 <template>
-    <UnoBasicCardSVG
-        v-if="newValue.length == 1" 
+    <UnoColorCardSVG 
+        v-if="newValue === 'color'"
+        @click="handleCard"
+        :class="playable && 'playable'" 
+    />
+    <UnoUniversalCardSVG
+        v-else
         :color="newColor" 
         :value="newValue"
         @click="handleCard"
-    />
-    <UnoColorCardSVG 
-        v-if="newValue === 'color'"
-        @click="handleCard" 
-    />
-    <UnoSpecialCardSVG 
-        v-if="newValue == '+2' || newValue == '+4' || newValue == '🗘' || newValue == '🚫'" 
-        :color="newColor" 
-        :value="newValue"
-        @click="handleCard" 
+        :class="playable && 'playable'" 
     />
 </template>
 
@@ -21,9 +17,8 @@
     import { ref } from 'vue';
     import { useMutation } from '@vue/apollo-composable';
     import { PLAY_CARD } from '../graphql/game.gql';
-    import UnoBasicCardSVG from './svg/UnoBasicCardSVG.vue';
-    import UnoSpecialCardSVG from './svg/UnoSpecialCardSVG.vue';
     import UnoColorCardSVG from './svg/UnoColorCardSVG.vue';
+    import UnoUniversalCardSVG from './svg/UnoUniversalCardSVG.vue';
 
     const { mutate: playCard } = useMutation(PLAY_CARD);
 
@@ -68,7 +63,7 @@
             newValue.value = 'color';
         break;
         default: 
-            newValue.value = props.value;
+            newValue.value = ` ${props.value}`;
         break;
     }
 
@@ -89,6 +84,17 @@
 <style scoped>
 svg {
     height: 12.5vw;
+    user-select: none;
+    filter: brightness(80%);
+}
+
+svg:hover, svg.playable:hover {
+    margin-bottom: 30px;
+}
+
+svg.playable {
+    margin-bottom: 5px;
+    filter: brightness(100%);
 }
 
 </style>
