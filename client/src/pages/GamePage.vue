@@ -36,10 +36,28 @@
                 </div>
             </div>
         </div>
-		<LobbyChat
-			v-if="me"
-			:me="me" 
-		/>
+		<div class="buttons">
+			<div 
+				class="button"
+				@click="chat_slider?.classList.add('active')"
+			>
+				<ChatSVG />
+			</div>
+		</div>
+		<div 
+			v-if="me" 
+			class="chat_slider" 
+			ref="chat_slider"
+		>
+			<div 
+				class='chat_close'
+				@click="chat_slider?.classList.remove('active')"
+			>X</div>
+			<LobbyChat
+				:me="me" 
+			/>
+		</div>
+	
     </div>
 </template>
 
@@ -55,6 +73,7 @@ import { DRAW_CARD, GET_GAME, UPDATE_GAME } from '../graphql/game.gql';
 import GameCard from '../components/GameCard.vue';
 import UnoBackCardSVG from '../components/svg/UnoBackCardSVG.vue';
 import LobbyChat from '../components/LobbyChat.vue';
+import ChatSVG from '../components/svg/ChatSVG.vue';
 
 let { params: { id } }: any = useRoute();
 const { mutate: updateToken } = useMutation(UPDATE_TOKEN);
@@ -74,15 +93,16 @@ let game = ref<{
 		cards: { color: string, value: string }[] | null
 	}[]
 } | null>(null);
-
-let mine = ref<{ color: string, value: string }[] | null>(null);
 let opponents = ref<{
 		user_id: string,
 		user_login: string,
 		left: number,
 		cards: { color: string, value: string }[]
 }[]>([]);
-let load = ref<boolean>(false)
+let mine = ref<{ color: string, value: string }[] | null>(null);
+let load = ref<boolean>(false);
+let chat_slider = ref<HTMLDivElement>();
+
 
 onResult((res: any) => {
 	if(res.data) {
@@ -148,6 +168,11 @@ let handDeck = async () => {
 	padding: 20px;
 	display: flex;
 	align-items: center;
+	flex-wrap: wrap;
+}
+
+h1 {
+	width: 100%;
 }
 
 .circle {
@@ -204,6 +229,58 @@ let handDeck = async () => {
 .opponent_card {
 	height: 120px;
 	width: 75px;
+}
+
+.buttons {
+	width: 15%;
+	height: 80vh;
+	margin: auto;
+	display: flex;
+	align-items: flex-end;
+	justify-content: flex-end;
+}
+
+.button {
+	height: 40px;
+	width: 40px;
+	padding: 3px;
+	cursor: pointer;
+	user-select: none;
+	border-radius: 50%;
+}
+
+.chat_slider {
+	position: fixed;
+	right: 0;
+	width: 50vw;
+	background-color: rgba(0, 0, 0, 0.596);
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	transform: translateX(100%);
+	transition: transform 0.75s;
+}
+
+.chat_slider.active {
+	transform: translateX(0%);
+}
+
+.chat_close {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	font-family: "Rubik";
+	font-size: 18px;
+	padding: 2px 7px;
+	border: 1px solid black;
+	border-radius: 50%;
+	cursor: pointer;
+	user-select: none;
+}
+.chat {
+	width: 90%;
+	height: 90%;
 }
 
 </style>
