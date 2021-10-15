@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
 
 export const GET_CHAT = gql`
-    query getChat($id: String!){
-        chat(id: $id){
+    query getChat($lobby_id: String!){
+        chat(lobby_id: $lobby_id){
             messages {
                 id,
                 sender,

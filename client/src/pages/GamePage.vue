@@ -1,12 +1,14 @@
 <template>
     <div class='container'>
-		<h1 v-if="game?.turn.user_id == me?.sub">Your turn</h1>
+		<h1 v-if="game && game.turn.user_id == me?.sub">Your turn</h1>
         <div class="circle" v-if="game">
             <div class="top">
-                <div class='opponent' v-for="hand of game?.hands.filter((e) => e.user_id != me?.sub)">
+                <div class='opponent' v-if="!load" v-for="hand of opponents">
                     <h2>{{ hand.user_login }}</h2>
                     <div class="opponent_card">
-						{{ hand.left }}
+						<UnoBackCardSVG 
+							:left="hand.left"
+						/>
 					</div>
                 </div>
             </div>
@@ -29,11 +31,15 @@
 						:value="card.value" 
 						:game="game" 
 						:me="me"
-						:index="index" 
+						:index="index"
 					/>
                 </div>
             </div>
         </div>
+		<LobbyChat
+			v-if="me"
+			:me="me" 
+		/>
     </div>
 </template>
 
@@ -48,6 +54,7 @@ import { UPDATE_TOKEN } from '../graphql/user.gql';
 import { DRAW_CARD, GET_GAME, UPDATE_GAME } from '../graphql/game.gql';
 import GameCard from '../components/GameCard.vue';
 import UnoBackCardSVG from '../components/svg/UnoBackCardSVG.vue';
+import LobbyChat from '../components/LobbyChat.vue';
 
 let { params: { id } }: any = useRoute();
 const { mutate: updateToken } = useMutation(UPDATE_TOKEN);
@@ -69,12 +76,23 @@ let game = ref<{
 } | null>(null);
 
 let mine = ref<{ color: string, value: string }[] | null>(null);
+let opponents = ref<{
+		user_id: string,
+		user_login: string,
+		left: number,
+		cards: { color: string, value: string }[]
+}[]>([]);
 let load = ref<boolean>(false)
 
 onResult((res: any) => {
 	if(res.data) {
-		game.value = res.data.game;
-		mine.value = res.data.game.hands.find((e: any) => e.user_id == me.value!.sub)!.cards;
+		let result = res.data.game;
+
+		game.value = result;
+		mine.value = result.hands.find((e: any) => e.user_id == me.value!.sub)!.cards;
+
+		let index = result.hands.indexOf(result.hands.find((e: any) => e.user_id == me.value!.sub));;
+		opponents.value = [...result.hands.slice(index + 1), ...result.hands.slice(0, index)];
 	}
 })
 
@@ -103,9 +121,14 @@ onUpdated(() => {
 })
 
 updateGame((res) => {
+	let result = res.data.updateGame;
+
 	load.value = true;
-	game.value = res.data.updateGame;
-	mine.value = res.data.updateGame.hands.find((e: any) => e.user_id == me.value!.sub)!.cards;
+	game.value = result;
+	mine.value = result.hands.find((e: any) => e.user_id == me.value!.sub)!.cards;
+
+	let index = result.hands.indexOf(result.hands.find((e: any) => e.user_id == me.value!.sub));
+	opponents.value = [...result.hands.slice(index + 1), ...result.hands.slice(0, index)];
 });
 
 let handDeck = async () => {
@@ -123,15 +146,14 @@ let handDeck = async () => {
 	height: 100vh;
 	width: 100%;
 	padding: 20px;
+	display: flex;
+	align-items: center;
 }
 
 .circle {
 	border: 5px solid grey;
-	border-radius: 500%;
-	height: 900px;
-	width: 900px;
-	margin: auto;
-	position: relative;
+	height: 80vh;
+	width: 80vw;
 }
 
 .top {
@@ -144,31 +166,30 @@ let handDeck = async () => {
 .bottom {
 	display: flex;
 	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
 	gap: 50px;
 }
 
 .deck, .pile {
 	transform: translateY(-50%);
+	max-width: 7vw;
+}
+
+.deck > svg {
+	width: 7vw;
 }
 
 .hand {
-	width: auto;
+	width: 125%;
 	background-color: cadetblue;
-	position: absolute;
-	bottom: 0;
-	left: 50%;
-	transform: translateX(-50%);
+	/* position: absolute; */
+	/* transform: translate(0%, 50%); */
 	display: flex;
 	align-items: center;
+	justify-content: center;
 	padding: 5px;
 	gap: 5px;
-}
-
-.card {
-	height: 15vw;
-	width: calc(15vw / 1.6);
-	border: 5px solid white;
-	border-radius: 5px;
 }
 
 .opponent {
@@ -181,9 +202,8 @@ let handDeck = async () => {
 }
 
 .opponent_card {
-	height: 60px;
-	width: 37.5px;
-	background-color: chartreuse;
+	height: 120px;
+	width: 75px;
 }
 
 </style>

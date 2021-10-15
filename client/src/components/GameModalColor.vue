@@ -21,12 +21,8 @@
 <style scoped>
 .modal {
     position: absolute;
-    z-index: 888;
-    /* top: -200%;
-    left: -102%; */
-    left: -50%;
-    transform: translate(-17%, -27%);
-    width: 100vw;
+    left: 0;
+    top: 0;
     box-sizing: border-box;
 }
 .color {

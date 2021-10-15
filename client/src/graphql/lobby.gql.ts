@@ -17,9 +17,6 @@ export const GET_LOBBY = gql`
                 login,
                 roles,
                 state
-            },
-            chat {
-                _id
             }
         }
     }

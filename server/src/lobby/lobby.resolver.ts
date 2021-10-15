@@ -13,7 +13,6 @@ import { RoleGuard } from 'src/role/role.guard';
 import { Role, Roles } from 'src/role/role.decorator';
 import { AuthService } from 'src/auth/auth.service';
 import { ChatService } from 'src/chat/chat.service';
-import { ChatDocument } from 'src/chat/chat.model';
 
 
 @Resolver(() => Lobby)
@@ -77,7 +76,7 @@ export class LobbyResolver {
 			
 			req.res.setHeader('Set-Cookie', 'token=' + access_token + "; Path=/;");
 			await this.pubSub.publish('updateLobby', lobby);
-			await this.pubSub.publish('updateChat', await this.chatService.findOne(lobby.chat));
+			await this.pubSub.publish('updateChat', await this.chatService.findOneByLobby(lobby._id));
 
 			return lobby;
 		} catch(e: any) {

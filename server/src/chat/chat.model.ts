@@ -7,7 +7,6 @@ import { Message } from './chat.message.type';
 @ObjectType()
 @Schema({ timestamps: true })
 export class Chat {
-    @Field(() => String)
     _id: Ms.Types.ObjectId;
 
     @Field(() => Lobby)

@@ -32,9 +32,9 @@ export class ChatResolver {
     @UseGuards(JwtAuthGuard, RoleGuard)
     @Query(() => Chat)
     chat(
-        @Args('id', { type: () => String }) id: Ms.Types.ObjectId
+        @Args('lobby_id', { type: () => String }) lobby_id: Ms.Types.ObjectId,
     ){
-        return this.chatService.findOne(id);
+        return this.chatService.findOneByLobby(lobby_id);
     }
 
     @Subscription(() => Chat, {

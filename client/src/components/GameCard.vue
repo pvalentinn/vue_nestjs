@@ -3,14 +3,14 @@
         v-if="newValue === 'color'"
         @click="handleCard"
         :color="newColor" 
-        :class="playable && 'playable'" 
+        :class="[playable && 'playable', game && 'card']" 
     />
     <UnoUniversalCardSVG
         v-else
         :color="newColor" 
         :value="newValue"
         @click="handleCard"
-        :class="playable && 'playable'" 
+        :class="[playable && 'playable', game && 'card']" 
     />
     <GameModalColor 
         v-if="show"
@@ -104,12 +104,12 @@
 
 <style scoped>
 svg {
-    height: 12.5vw;
+    width: 6.5vw;
     user-select: none;
     filter: brightness(80%);
 }
 
-svg:hover, svg.playable:hover {
+.card:hover {
     margin-bottom: 30px;
 }
 

@@ -31,16 +31,16 @@ import BeautifulSubmit from "./BeautifulSubmit.vue";
 
 let text = ref('');
 let messages = ref<{ id: number, sender_id?: string, sender: string, text: string, created_at: Date }[]>([]);
-let props = defineProps<{ me?: { sub: string, lobby: string, roles: string[] } | null, chat: string }>();
+let props = defineProps<{ me?: { sub: string, lobby: string, roles: string[] } | null }>();
 
 let { mutate: addMessage } = useMutation(ADD_MESSAGE);
-let { onResult: getChat } = useQuery(GET_CHAT, { id: props.chat });
+let { onResult: getChat } = useQuery(GET_CHAT, { lobby_id: props.me?.lobby });
 let { onResult: updateChat, onError: updateChatError } = useSubscription(UPDATE_CHAT, { lobby_id: props.me?.lobby });
 
 let sendMessage = async (e: Event) => {
     e.preventDefault();
     try {
-        await addMessage({ payload: { chat_id: props.chat, text: text.value } });
+        await addMessage({ payload: { lobby_id: props.me?.lobby, text: text.value } });
         text.value = '';
     } catch (e: any) {
         console.log("Error in sendMessage() :" + e.message)

@@ -3,7 +3,7 @@
 # ------------------------------------------------------
 
 input AddMessageInput {
-  chat_id: String!
+  lobby_id: String!
   text: String!
 }
 
@@ -13,7 +13,6 @@ type Card {
 }
 
 type Chat {
-  _id: String!
   lobby: Lobby!
   messages: [Message!]!
 }
@@ -86,7 +85,7 @@ type Mutation {
 }
 
 type Query {
-  chat(id: String!): Chat!
+  chat(lobby_id: String!): Chat!
   game: Game!
   lobbies(filters: ListLobbyInput): [Lobby!]!
   lobby(id: String!): Lobby!
